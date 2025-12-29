@@ -41,19 +41,17 @@
       overflow: hidden; /* One-screen mode */
     }
 
-    /* NEW: thin invisible trigger area at the very top (hover to reveal nav) */
+    /* Top hover trigger strip */
     .nav-trigger{
       position: fixed;
       top: 0;
       left: 0;
       right: 0;
       height: 22px;
-      z-index: 12; /* above nav so it can trigger */
+      z-index: 12;
       background: transparent;
-      /* NEW: don't cover the brand area too much */
-      padding-left: 160px; /* roughly brand width */
+      padding-left: 160px; /* keep some space near brand */
       box-sizing: border-box;
-      
     }
 
     /* Decorations */
@@ -100,7 +98,7 @@
       max-width: 240px;
       user-select: none;
       cursor: grab;
-      touch-action: none; /* enable pointer dragging */
+      touch-action: none;
     }
     .sidehint.dragging{ cursor: grabbing; }
 
@@ -152,7 +150,7 @@
       font-size: 12.5px;
       font-weight: 800;
       line-height: 1.3;
-      padding-right: 34px; /* room for X button */
+      padding-right: 34px;
     }
     .sidehint .keys{
       margin-top: 6px;
@@ -182,7 +180,7 @@
       display:none !important;
     }
 
-    /* Fixed top navigation (hidden by default; show when mouse near top) */
+    /* Top Navigation (hidden by default; show when mouse near top) */
     .topnav{
       position: fixed;
       top: 0; left: 0; right: 0;
@@ -214,11 +212,12 @@
     }
 
     .nav{
+      display:flex;
       gap:8px;
       flex-wrap:wrap;
       align-items: center;
 
-      /* NEW: JS will push nav to the right to avoid covering by brand */
+      /* NEW: JS will push nav right so brand never blocks it */
       margin-left: var(--nav-safe-left, 0px);
       transition: margin-left 220ms ease;
     }
@@ -275,13 +274,13 @@
       line-height: 1.1;
     }
 
-    /* Brand fixed at top-right, always visible */
+    /* Brand fixed at top-left, always visible */
     .brand-fixed{
       position: fixed;
       top: 14px;
       left: 16px;
       right: auto;
-      z-index: 13; /* above nav and trigger */
+      z-index: 13;
     }
 
     /* Stage */
@@ -289,7 +288,7 @@
       position: relative;
       z-index: 2;
       height: 100vh;
-      padding-top: 0;   /* nav is no longer always visible */
+      padding-top: 0;
       overflow: hidden;
     }
 
@@ -303,12 +302,12 @@
       position: relative;
     }
 
-    /* ===== One-screen pages with fade in/out ===== */
+    /* One-screen pages with fade in/out */
     .page{
       position: absolute;
       inset: 0;
       overflow: auto;
-      padding: 96px 0 64px; /* NEW: keep content clear of fixed brand */
+      padding: 96px 0 64px; /* leave room for fixed brand */
       opacity: 0;
       transform: translateY(10px);
       pointer-events: none;
@@ -470,6 +469,61 @@
       z-index: 2;
     }
 
+    /* ===== Intro / Splash Overlay ===== */
+    .intro-overlay{
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: rgba(246,247,248,0.92);
+      backdrop-filter: blur(10px);
+      opacity: 1;
+      transition: opacity 260ms ease;
+    }
+    .intro-overlay.hidden{
+      opacity: 0;
+      pointer-events: none;
+    }
+    .intro-card{
+      width: min(980px, 92vw);
+      border-radius: 22px;
+      border: 1px solid rgba(62,74,86,0.14);
+      background: rgba(255,255,255,0.72);
+      box-shadow: 0 18px 40px var(--shadow);
+      overflow: hidden;
+    }
+    .intro-media{
+      display: block;
+      width: 100%;
+      height: auto;
+      background: #fff;
+    }
+    .intro-footer{
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 16px;
+      color: var(--text-sub);
+    }
+    .intro-title{
+      font-weight: 900;
+      color: var(--line-strong);
+      letter-spacing: 0.2px;
+    }
+    .intro-hint{
+      font-weight: 900;
+      font-size: 13px;
+      color: var(--text-sub);
+      background: rgba(207,233,230,0.55);
+      border: 1px solid rgba(62,74,86,0.14);
+      padding: 8px 10px;
+      border-radius: 12px;
+    }
+
     /* Responsive */
     @media (max-width: 980px){
       :root{ --nav-h: 126px; }
@@ -477,14 +531,11 @@
         padding: 12px 16px;
         align-items: flex-start;
       }
-      .brand{
-        padding: 6px 8px;
-      }
       .logo{ height: 52px; width: 52px; }
       .brand-name{ font-size: 16px; }
       .sidehint{ display:none; }
       .brand-fixed{ top: 12px; left: 12px; right: auto; }
-      .page{ padding-top: 84px; }
+      .page{ padding-top: 92px; }
     }
 
     @media (max-width: 860px){
@@ -497,6 +548,7 @@
       .container{ padding-left: 16px; padding-right: 16px; }
       .decor-bottom{ opacity: 0.6; }
       .nav a{ font-size: 13px; padding: 8px 10px; }
+      .intro-footer{ flex-direction: column; align-items:flex-start; }
     }
   </style>
 </head>
@@ -504,6 +556,17 @@
 <body>
   <!-- Hover trigger strip -->
   <div class="nav-trigger" aria-hidden="true"></div>
+
+  <!-- Intro / Splash (shows first) -->
+  <div id="introOverlay" class="intro-overlay" role="dialog" aria-modal="true" aria-label="Intro">
+    <div class="intro-card">
+      <img class="intro-media" src="./assets/images/VTOL.gif" alt="VitalWing VTOL intro animation" />
+      <div class="intro-footer">
+        <div class="intro-title">Vital Wings · VTOL Antivenom Delivery</div>
+        <div class="intro-hint">Click or press any key to enter</div>
+      </div>
+    </div>
+  </div>
 
   <!-- Decorative birds -->
   <div class="decor decor-top" aria-hidden="true"></div>
@@ -527,7 +590,7 @@
     </div>
   </aside>
 
-  <!-- Brand always visible at top-right (click → Home) -->
+  <!-- Brand always visible at top-left (click → Home) -->
   <a class="brand brand-fixed" href="#home" aria-label="Go to Home">
     <img src="./assets/images/logo黑.png" alt="VitalWing Project Logo" class="logo" />
     <span class="brand-name">Vital Wings</span>
@@ -581,6 +644,12 @@
               <span class="pill">VTOL + fixed-wing cruise</span>
               <span class="pill">2–8°C cold-chain</span>
               <span class="pill">Autonomous navigation</span>
+            </div>
+
+            <!-- NEW: VTOL2 photo on Home -->
+            <div class="figure" style="margin-top:14px;">
+              <img src="./assets/images/VTOL2.jpg" alt="VitalWing VTOL drone photo" />
+              <div class="figcap">VitalWing VTOL prototype photo.</div>
             </div>
           </div>
 
@@ -951,7 +1020,79 @@
         if (currentIndex > 0) showPageById(pageIds[currentIndex - 1], true);
       }
 
-      /* ===== Initial page ===== */
+      /* ===== Intro gate (GIF first) ===== */
+      const introOverlay = document.getElementById('introOverlay');
+      let entered = false;
+
+      function enterSite() {
+        if (entered) return;
+        entered = true;
+
+        showPageById('home', true);
+
+        if (introOverlay) {
+          introOverlay.classList.add('hidden');
+          setTimeout(() => {
+            if (introOverlay && introOverlay.parentNode) introOverlay.parentNode.removeChild(introOverlay);
+          }, 300);
+        }
+      }
+
+      document.addEventListener('pointerdown', (e) => {
+        if (entered) return;
+        e.preventDefault();
+        e.stopPropagation();
+        enterSite();
+      }, true);
+
+      window.addEventListener('keydown', (e) => {
+        if (entered) return;
+        e.preventDefault();
+        e.stopPropagation();
+        enterSite();
+      }, true);
+
+      /* ===== FIX: compute real safe-left offset so brand never blocks the nav ===== */
+      const brand = document.querySelector('.brand-fixed');
+      const inner = document.querySelector('.topnav-inner');
+
+      function setNavSafeLeft(px){
+        document.documentElement.style.setProperty('--nav-safe-left', `${px}px`);
+      }
+
+      function updateNavSafeLeft(){
+        if (!brand || !inner) { setNavSafeLeft(0); return; }
+
+        const brandRect = brand.getBoundingClientRect();
+        const innerRect = inner.getBoundingClientRect();
+
+        const innerStyle = window.getComputedStyle(inner);
+        const innerPadLeft = parseFloat(innerStyle.paddingLeft) || 0;
+        const contentLeft = innerRect.left + innerPadLeft;
+
+        const gap = 14;
+        const desiredLeft = brandRect.right + gap;
+
+        const offset = Math.max(0, Math.ceil(desiredLeft - contentLeft));
+        setNavSafeLeft(offset);
+      }
+
+      updateNavSafeLeft();
+      window.addEventListener('resize', updateNavSafeLeft);
+      window.addEventListener('orientationchange', updateNavSafeLeft);
+
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(updateNavSafeLeft);
+      }
+
+      if (window.ResizeObserver && brand) {
+        const ro = new ResizeObserver(updateNavSafeLeft);
+        ro.observe(brand);
+      }
+
+      window.addEventListener('load', updateNavSafeLeft);
+
+      /* ===== Initial page: hash > home (but intro overlay blocks interaction until enter) ===== */
       const initial = (location.hash || '#home').replace('#','');
       currentIndex = pageIds.includes(initial) ? pageIds.indexOf(initial) : 0;
       pages.forEach((p, i) => {
@@ -970,8 +1111,9 @@
         });
       });
 
-      /* ===== Keyboard navigation ===== */
+      /* ===== Keyboard: Arrow / PageUpDown / Space (only after entering) ===== */
       window.addEventListener('keydown', (e) => {
+        if (!entered) return;
         if (['ArrowDown','PageDown',' '].includes(e.key)) {
           e.preventDefault();
           nextPage();
@@ -984,10 +1126,12 @@
       /* ===== Touch swipe (mobile) ===== */
       let touchY = null;
       window.addEventListener('touchstart', (e) => {
+        if (!entered) return;
         touchY = e.touches[0].clientY;
       }, { passive: true });
 
       window.addEventListener('touchend', (e) => {
+        if (!entered) return;
         if (touchY === null) return;
         const endY = e.changedTouches[0].clientY;
         const diff = touchY - endY;
@@ -1001,16 +1145,18 @@
 
       /* ===== Hash change ===== */
       window.addEventListener('hashchange', () => {
+        if (!entered) return;
         const id = (location.hash || '#home').replace('#','');
         if (pageIds.includes(id)) showPageById(id, false);
       });
 
-      /* ===== NEW: Top nav appears when mouse is near the top ===== */
+      /* ===== Top nav appears when mouse near the top ===== */
       let navPinned = false;
 
       function showNav(){
         if (!topnav) return;
         topnav.classList.add('show');
+        requestAnimationFrame(updateNavSafeLeft);
       }
       function hideNav(){
         if (!topnav) return;
@@ -1038,7 +1184,7 @@
         trigger.addEventListener('mouseenter', showNav);
       }
 
-      /* ===== NEW: Side hint close + remember ===== */
+      /* ===== Side hint close + remember ===== */
       const sidehint = document.getElementById('sidehint');
       const closeHint = document.getElementById('closeHint');
 
@@ -1054,10 +1200,9 @@
         });
       }
 
-      /* ===== NEW: Side hint dragging (pointer) ===== */
+      /* ===== Side hint dragging ===== */
       if (sidehint) {
         let dragging = false;
-        let startX = 0, startY = 0;
         let offsetX = 0, offsetY = 0;
 
         function ensureAbsolutePosition(){
@@ -1069,19 +1214,15 @@
         }
 
         sidehint.addEventListener('pointerdown', (e) => {
-          // Don’t start drag when clicking the close button
           if (e.target && e.target.closest && e.target.closest('#closeHint')) return;
 
           ensureAbsolutePosition();
           dragging = true;
           sidehint.classList.add('dragging');
 
-          startX = e.clientX;
-          startY = e.clientY;
-
           const rect = sidehint.getBoundingClientRect();
-          offsetX = startX - rect.left;
-          offsetY = startY - rect.top;
+          offsetX = e.clientX - rect.left;
+          offsetY = e.clientY - rect.top;
 
           sidehint.setPointerCapture(e.pointerId);
           e.preventDefault();
@@ -1097,7 +1238,6 @@
           let left = e.clientX - offsetX;
           let top = e.clientY - offsetY;
 
-          // Clamp inside viewport with small padding
           const pad = 8;
           left = Math.max(pad, Math.min(left, vw - rect.width - pad));
           top  = Math.max(pad, Math.min(top,  vh - rect.height - pad));
@@ -1113,59 +1253,6 @@
 
         sidehint.addEventListener('pointerup', endDrag);
         sidehint.addEventListener('pointercancel', endDrag);
-
-
-              /* ===== FIX: compute real safe-left offset so brand never blocks the nav ===== */
-      const brand = document.querySelector('.brand-fixed');
-      const inner = document.querySelector('.topnav-inner');
-
-      function setNavSafeLeft(px){
-        document.documentElement.style.setProperty('--nav-safe-left', `${px}px`);
-      }
-
-      function updateNavSafeLeft(){
-        if (!brand || !inner) { setNavSafeLeft(0); return; }
-
-        const brandRect = brand.getBoundingClientRect();
-        const innerRect = inner.getBoundingClientRect();
-
-        // inner content left edge = inner left + its padding-left
-        const innerStyle = window.getComputedStyle(inner);
-        const innerPadLeft = parseFloat(innerStyle.paddingLeft) || 0;
-        const contentLeft = innerRect.left + innerPadLeft;
-
-        // we want nav start >= brand right + gap
-        const gap = 14;
-        const desiredLeft = brandRect.right + gap;
-
-        const offset = Math.max(0, Math.ceil(desiredLeft - contentLeft));
-        setNavSafeLeft(offset);
-      }
-
-      // run now and keep updated
-      updateNavSafeLeft();
-      window.addEventListener('resize', updateNavSafeLeft);
-      window.addEventListener('orientationchange', updateNavSafeLeft);
-
-      if (document.fonts && document.fonts.ready) {
-        document.fonts.ready.then(updateNavSafeLeft);
-      }
-
-      if (window.ResizeObserver && brand) {
-        const ro = new ResizeObserver(updateNavSafeLeft);
-        ro.observe(brand);
-      }
-
-      window.addEventListener('load', updateNavSafeLeft);
-
-      // also update when nav is shown (so layout is definitely ready)
-      const _showNav = showNav;
-      showNav = function(){
-        _showNav();
-        requestAnimationFrame(updateNavSafeLeft);
-      };
-
-
       }
     })();
   </script>
