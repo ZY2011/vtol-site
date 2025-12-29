@@ -214,10 +214,13 @@
     }
 
     .nav{
-      display:flex;
       gap:8px;
       flex-wrap:wrap;
       align-items: center;
+
+      /* NEW: JS will push nav to the right to avoid covering by brand */
+      margin-left: var(--nav-safe-left, 0px);
+      transition: margin-left 220ms ease;
     }
     .nav a{
       text-decoration:none;
@@ -1112,49 +1115,56 @@
         sidehint.addEventListener('pointercancel', endDrag);
 
 
-              /* ===== NEW: auto-reserve space for the fixed brand so nav won't be blocked ===== */
-        const brand = document.querySelector('.brand-fixed');
+              /* ===== FIX: compute real safe-left offset so brand never blocks the nav ===== */
+      const brand = document.querySelector('.brand-fixed');
+      const inner = document.querySelector('.topnav-inner');
 
-        function setBrandSpace(px){
-          document.documentElement.style.setProperty('--brand-space', `${px}px`);
-        }
+      function setNavSafeLeft(px){
+        document.documentElement.style.setProperty('--nav-safe-left', `${px}px`);
+      }
 
-        function updateBrandSpace(){
-          if (!brand) { setBrandSpace(0); return; }
+      function updateNavSafeLeft(){
+        if (!brand || !inner) { setNavSafeLeft(0); return; }
 
-          const rect = brand.getBoundingClientRect();
-          // If hidden or not laid out yet
-          if (!rect.width || rect.width < 10) { setBrandSpace(0); return; }
+        const brandRect = brand.getBoundingClientRect();
+        const innerRect = inner.getBoundingClientRect();
 
-          // Extra breathing room between brand and nav
-          const gap = 18;
+        // inner content left edge = inner left + its padding-left
+        const innerStyle = window.getComputedStyle(inner);
+        const innerPadLeft = parseFloat(innerStyle.paddingLeft) || 0;
+        const contentLeft = innerRect.left + innerPadLeft;
 
-          // Clamp for small screens to avoid squeezing nav too much
-          const vw = window.innerWidth || 1200;
-          const maxSpace = vw < 520 ? 120 : (vw < 900 ? 170 : 260);
+        // we want nav start >= brand right + gap
+        const gap = 14;
+        const desiredLeft = brandRect.right + gap;
 
-          const space = Math.min(Math.ceil(rect.width + gap), maxSpace);
-          setBrandSpace(space);
-        }
+        const offset = Math.max(0, Math.ceil(desiredLeft - contentLeft));
+        setNavSafeLeft(offset);
+      }
 
-        // Run now, after fonts load, and on resize
-        updateBrandSpace();
-        window.addEventListener('resize', () => updateBrandSpace());
-        window.addEventListener('orientationchange', () => updateBrandSpace());
+      // run now and keep updated
+      updateNavSafeLeft();
+      window.addEventListener('resize', updateNavSafeLeft);
+      window.addEventListener('orientationchange', updateNavSafeLeft);
 
-        // If fonts are loading (brand width may change after font renders)
-        if (document.fonts && document.fonts.ready) {
-          document.fonts.ready.then(() => updateBrandSpace());
-        }
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(updateNavSafeLeft);
+      }
 
-        // Watch brand size changes (logo load, responsive changes, etc.)
-        if (window.ResizeObserver && brand) {
-          const ro = new ResizeObserver(() => updateBrandSpace());
-          ro.observe(brand);
-        }
+      if (window.ResizeObserver && brand) {
+        const ro = new ResizeObserver(updateNavSafeLeft);
+        ro.observe(brand);
+      }
 
-        // Also update once after images load
-        window.addEventListener('load', () => updateBrandSpace());
+      window.addEventListener('load', updateNavSafeLeft);
+
+      // also update when nav is shown (so layout is definitely ready)
+      const _showNav = showNav;
+      showNav = function(){
+        _showNav();
+        requestAnimationFrame(updateNavSafeLeft);
+      };
+
 
       }
     })();
