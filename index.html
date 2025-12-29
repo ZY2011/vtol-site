@@ -50,6 +50,10 @@
       height: 22px;
       z-index: 12; /* above nav so it can trigger */
       background: transparent;
+      /* NEW: don't cover the brand area too much */
+      padding-left: 160px; /* roughly brand width */
+      box-sizing: border-box;
+      
     }
 
     /* Decorations */
@@ -272,7 +276,8 @@
     .brand-fixed{
       position: fixed;
       top: 14px;
-      right: 16px;
+      left: 16px;
+      right: auto;
       z-index: 13; /* above nav and trigger */
     }
 
@@ -475,7 +480,7 @@
       .logo{ height: 52px; width: 52px; }
       .brand-name{ font-size: 16px; }
       .sidehint{ display:none; }
-      .brand-fixed{ top: 12px; right: 12px; }
+      .brand-fixed{ top: 12px; left: 12px; right: auto; }
       .page{ padding-top: 84px; }
     }
 
