@@ -65,7 +65,7 @@
       opacity: 0.85;
     }
 
-    /* Right-side hint rail */
+    /* Right-side hint rail (draggable & closable) */
     .sidehint{
       position: fixed;
       top: 50%;
@@ -73,7 +73,7 @@
       transform: translateY(-50%);
       z-index: 11;
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       gap: 10px;
       padding: 12px 12px;
       border-radius: 14px;
@@ -82,9 +82,48 @@
       backdrop-filter: blur(10px);
       box-shadow: 0 14px 30px var(--shadow);
       color: var(--text-sub);
-      max-width: 220px;
+      max-width: 240px;
       user-select: none;
+      cursor: grab;
+      touch-action: none; /* enable pointer dragging on mobile */
     }
+    .sidehint:active{ cursor: grabbing; }
+
+    .sidehint .topbar{
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      z-index: 2;
+    }
+    .sidehint .closebtn{
+      width: 28px;
+      height: 28px;
+      border-radius: 10px;
+      border: 1px solid rgba(62,74,86,0.14);
+      background: rgba(246,247,248,0.9);
+      box-shadow: 0 10px 24px var(--shadow);
+      color: var(--line-strong);
+      font-weight: 900;
+      line-height: 1;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor: pointer;
+      user-select:none;
+      transition: transform .08s ease, box-shadow .12s ease;
+    }
+    .sidehint .closebtn:hover{
+      transform: translateY(-1px);
+      box-shadow: 0 14px 30px var(--shadow);
+    }
+    .sidehint .closebtn:focus{
+      outline: 2px solid rgba(126,201,195,0.45);
+      outline-offset: 2px;
+    }
+
     .sidehint .dot{
       width: 10px;
       height: 10px;
@@ -98,6 +137,7 @@
       font-size: 12.5px;
       font-weight: 800;
       line-height: 1.3;
+      padding-right: 34px; /* leave room for X button */
     }
     .sidehint .keys{
       margin-top: 6px;
@@ -124,30 +164,57 @@
       font-size: 12px;
     }
 
-    /* Fixed top navigation */
-    .topnav{
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      height: var(--nav-h);
-      z-index: 10;
-      background: rgba(246,247,248,0.86);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid rgba(62,74,86,0.14);
-    }
-    .topnav-inner{
-      max-width: 1100px;
-      height: 100%;
-      margin: 0 auto;
-      padding: 14px 20px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap: 16px;
+    .sidehint.hide{
+      display:none !important;
     }
 
+    /* Fixed top navigation */
+    /* Fixed top navigation (auto-hide; show on top hover) */
+.topnav{
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: var(--nav-h);
+  z-index: 10;
+  background: rgba(246,247,248,0.86);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(62,74,86,0.14);
+
+  /* NEW: hidden by default */
+  transform: translateY(-110%);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 220ms ease, opacity 220ms ease;
+}
+.topnav.show{
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.topnav-inner{
+  max-width: 1100px;
+  height: 100%;
+  margin: 0 auto;
+  padding: 14px 20px;
+  display:flex;
+  align-items:center;
+  justify-content:flex-start; /* NEW: no brand inside, left aligned */
+  gap: 16px;
+}
+
+/* NEW: a thin invisible trigger area at top */
+.nav-trigger{
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 20px;
+  z-index: 12; /* above nav so it can trigger */
+}
+    
     .nav{
       display:flex;
-      gap:10px;
+      gap:8px;              /* smaller */
       flex-wrap:wrap;
       align-items: center;
     }
@@ -155,13 +222,15 @@
       text-decoration:none;
       color: var(--text-sub);
       font-weight: 800;
-      padding: 10px 12px;
+      padding: 8px 10px;    /* smaller */
+      font-size: 13.5px;    /* smaller */
       border-radius: 10px;
       border: 1px solid rgba(62,74,86,0.15);
       background: var(--bg-card);
       box-shadow: 0 10px 24px var(--shadow);
       transition: transform .08s ease, box-shadow .12s ease, background .12s ease, color .12s ease;
       user-select:none;
+      white-space: nowrap;
     }
     .nav a:hover{
       transform: translateY(-1px);
@@ -173,19 +242,41 @@
       border-color: transparent;
     }
 
-    .logo{
-      height: 90px;
-      width: 90px;
-      display: block;
-      filter: drop-shadow(0 10px 18px rgba(0,0,0,0.08));
-    }
-    .logo-link{
+    .brand{
       display:inline-flex;
       align-items:center;
       gap:12px;
       text-decoration:none;
       color: inherit;
       user-select:none;
+      padding: 6px 8px;
+      border-radius: 14px;
+      border: 1px solid rgba(62,74,86,0.12);
+      background: rgba(255,255,255,0.65);
+      backdrop-filter: blur(8px);
+      box-shadow: 0 12px 26px var(--shadow);
+    }
+    /* NEW: fixed brand always visible at top-right */
+    .brand-fixed{
+      position: fixed;
+      top: 14px;
+      right: 16px;
+      z-index: 13; /* above nav and trigger */
+    }
+
+    .logo{
+      height: 56px; /* bigger */
+      width: 56px;  /* bigger */
+      display: block;
+      filter: drop-shadow(0 10px 18px rgba(0,0,0,0.08));
+    }
+    .brand-name{
+      font-weight: 900; /* bold */
+      letter-spacing: 0.4px;
+      color: var(--line-strong);
+      font-size: 18px;
+      line-height: 1.1;
+      text-transform: none;
     }
 
     /* Stage */
@@ -383,7 +474,11 @@
         padding: 12px 16px;
         align-items: flex-start;
       }
-      .logo{ height: 72px; width: 72px; }
+      .brand{
+        padding: 6px 8px;
+      }
+      .logo{ height: 52px; width: 52px; }
+      .brand-name{ font-size: 16px; }
       .sidehint{ display:none; }
     }
 
@@ -396,17 +491,23 @@
     @media (max-width: 720px){
       .container{ padding-left: 16px; padding-right: 16px; }
       .decor-bottom{ opacity: 0.6; }
+      .nav a{ font-size: 13px; padding: 8px 10px; }
     }
   </style>
 </head>
 
 <body>
+  <div class="nav-trigger" aria-hidden="true"></div>
   <!-- Decorative birds -->
   <div class="decor decor-top" aria-hidden="true"></div>
   <div class="decor decor-bottom" aria-hidden="true"></div>
 
-  <!-- Right-side hint -->
-  <aside class="sidehint" aria-label="Page switching hint">
+  <!-- Right-side hint (draggable + close) -->
+  <aside class="sidehint" id="sidehint" aria-label="Page switching hint">
+    <div class="topbar" aria-hidden="false">
+      <button class="closebtn" id="closeHint" type="button" aria-label="Close hint">×</button>
+    </div>
+
     <span class="dot" aria-hidden="true"></span>
     <div>
       <div class="txt">Switch pages by pressing the up and down keys</div>
@@ -415,6 +516,7 @@
         <span class="muted">or</span>
         <kbd>PgUp</kbd><kbd>PgDn</kbd>
       </div>
+      <div class="muted" style="margin-top:8px; font-size:12px;">Tip: drag this box anywhere.</div>
     </div>
   </aside>
 
@@ -433,12 +535,13 @@
         <a href="#impact">Impact</a>
         <a href="#team">Team</a>
       </nav>
-
-      <a class="logo-link" href="#home" aria-label="Go to Home">
-        <img src="./assets/images/logo黑.png" alt="VitalWing Project Logo" class="logo" />
-      </a>
     </div>
   </div>
+  
+  <a class="brand brand-fixed" href="#home" aria-label="Go to Home">
+    <img src="./assets/images/logo黑.png" alt="VitalWing Project Logo" class="logo" />
+    <span class="brand-name">Vital Wings</span>
+  </a>
 
   <!-- Stage -->
   <div class="stage">
@@ -810,8 +913,46 @@
       function setActiveNav(id){
         navLinks.forEach(a => a.classList.toggle('active', a.getAttribute('href') === `#${id}`));
       }
+      // ===== NEW: show/hide top nav only when mouse near top =====
+      const topnav = document.querySelector('.topnav');
+      const trigger = document.querySelector('.nav-trigger');
 
-      function showPageById(id, updateHash = true) {
+      let navPinned = false;
+
+      function showNav() {
+        if (!topnav) return;
+        topnav.classList.add('show');
+      }
+      function hideNav() {
+        if (!topnav) return;
+        topnav.classList.remove('show');
+      }
+
+      // When mouse approaches the top edge
+      window.addEventListener('mousemove', (e) => {
+        if (navPinned) return;
+        if (e.clientY <= 24) showNav();
+        else hideNav();
+      });
+
+      // Keep nav visible while hovering nav itself
+      if (topnav) {
+        topnav.addEventListener('mouseenter', () => {
+          navPinned = true;
+          showNav();
+        });
+        topnav.addEventListener('mouseleave', () => {
+          navPinned = false;
+          hideNav();
+        });
+      }
+
+      // Also show when hovering the top trigger strip
+      if (trigger) {
+        trigger.addEventListener('mouseenter', showNav);
+      }
+
+        function showPageById(id, updateHash = true) {
         const idx = pageIds.indexOf(id);
         if (idx === -1) return;
 
@@ -899,3 +1040,5 @@
   </script>
 </body>
 </html>
+
+::contentReference[oaicite:0]{index=0}
