@@ -50,10 +50,6 @@
       height: 22px;
       z-index: 12; /* above nav so it can trigger */
       background: transparent;
-      /* NEW: don't cover the brand area too much */
-      padding-left: 160px; /* roughly brand width */
-      box-sizing: border-box;
-      
     }
 
     /* Decorations */
@@ -214,13 +210,10 @@
     }
 
     .nav{
+      display:flex;
       gap:8px;
       flex-wrap:wrap;
       align-items: center;
-
-      /* NEW: JS will push nav to the right to avoid covering by brand */
-      margin-left: var(--nav-safe-left, 0px);
-      transition: margin-left 220ms ease;
     }
     .nav a{
       text-decoration:none;
@@ -279,8 +272,7 @@
     .brand-fixed{
       position: fixed;
       top: 14px;
-      left: 16px;
-      right: auto;
+      right: 16px;
       z-index: 13; /* above nav and trigger */
     }
 
@@ -308,7 +300,7 @@
       position: absolute;
       inset: 0;
       overflow: auto;
-      padding: 96px 0 64px; /* NEW: keep content clear of fixed brand */
+      padding: 88px 0 64px; /* NEW: keep content clear of fixed brand */
       opacity: 0;
       transform: translateY(10px);
       pointer-events: none;
@@ -483,7 +475,7 @@
       .logo{ height: 52px; width: 52px; }
       .brand-name{ font-size: 16px; }
       .sidehint{ display:none; }
-      .brand-fixed{ top: 12px; left: 12px; right: auto; }
+      .brand-fixed{ top: 12px; right: 12px; }
       .page{ padding-top: 84px; }
     }
 
@@ -1113,59 +1105,6 @@
 
         sidehint.addEventListener('pointerup', endDrag);
         sidehint.addEventListener('pointercancel', endDrag);
-
-
-              /* ===== FIX: compute real safe-left offset so brand never blocks the nav ===== */
-      const brand = document.querySelector('.brand-fixed');
-      const inner = document.querySelector('.topnav-inner');
-
-      function setNavSafeLeft(px){
-        document.documentElement.style.setProperty('--nav-safe-left', `${px}px`);
-      }
-
-      function updateNavSafeLeft(){
-        if (!brand || !inner) { setNavSafeLeft(0); return; }
-
-        const brandRect = brand.getBoundingClientRect();
-        const innerRect = inner.getBoundingClientRect();
-
-        // inner content left edge = inner left + its padding-left
-        const innerStyle = window.getComputedStyle(inner);
-        const innerPadLeft = parseFloat(innerStyle.paddingLeft) || 0;
-        const contentLeft = innerRect.left + innerPadLeft;
-
-        // we want nav start >= brand right + gap
-        const gap = 14;
-        const desiredLeft = brandRect.right + gap;
-
-        const offset = Math.max(0, Math.ceil(desiredLeft - contentLeft));
-        setNavSafeLeft(offset);
-      }
-
-      // run now and keep updated
-      updateNavSafeLeft();
-      window.addEventListener('resize', updateNavSafeLeft);
-      window.addEventListener('orientationchange', updateNavSafeLeft);
-
-      if (document.fonts && document.fonts.ready) {
-        document.fonts.ready.then(updateNavSafeLeft);
-      }
-
-      if (window.ResizeObserver && brand) {
-        const ro = new ResizeObserver(updateNavSafeLeft);
-        ro.observe(brand);
-      }
-
-      window.addEventListener('load', updateNavSafeLeft);
-
-      // also update when nav is shown (so layout is definitely ready)
-      const _showNav = showNav;
-      showNav = function(){
-        _showNav();
-        requestAnimationFrame(updateNavSafeLeft);
-      };
-
-
       }
     })();
   </script>
