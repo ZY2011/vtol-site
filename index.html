@@ -206,7 +206,7 @@
       max-width: 1100px;
       height: 100%;
       margin: 0 auto;
-      padding: 14px 20px 14px 170px;
+      padding: 14px 20px;
       display:flex;
       align-items:center;
       justify-content:flex-start;
@@ -471,7 +471,7 @@
     @media (max-width: 980px){
       :root{ --nav-h: 126px; }
       .topnav-inner{
-        padding: 12px 16px 12px 130px;
+        padding: 12px 16px;
         align-items: flex-start;
       }
       .brand{
@@ -1110,6 +1110,52 @@
 
         sidehint.addEventListener('pointerup', endDrag);
         sidehint.addEventListener('pointercancel', endDrag);
+
+
+              /* ===== NEW: auto-reserve space for the fixed brand so nav won't be blocked ===== */
+        const brand = document.querySelector('.brand-fixed');
+
+        function setBrandSpace(px){
+          document.documentElement.style.setProperty('--brand-space', `${px}px`);
+        }
+
+        function updateBrandSpace(){
+          if (!brand) { setBrandSpace(0); return; }
+
+          const rect = brand.getBoundingClientRect();
+          // If hidden or not laid out yet
+          if (!rect.width || rect.width < 10) { setBrandSpace(0); return; }
+
+          // Extra breathing room between brand and nav
+          const gap = 18;
+
+          // Clamp for small screens to avoid squeezing nav too much
+          const vw = window.innerWidth || 1200;
+          const maxSpace = vw < 520 ? 120 : (vw < 900 ? 170 : 260);
+
+          const space = Math.min(Math.ceil(rect.width + gap), maxSpace);
+          setBrandSpace(space);
+        }
+
+        // Run now, after fonts load, and on resize
+        updateBrandSpace();
+        window.addEventListener('resize', () => updateBrandSpace());
+        window.addEventListener('orientationchange', () => updateBrandSpace());
+
+        // If fonts are loading (brand width may change after font renders)
+        if (document.fonts && document.fonts.ready) {
+          document.fonts.ready.then(() => updateBrandSpace());
+        }
+
+        // Watch brand size changes (logo load, responsive changes, etc.)
+        if (window.ResizeObserver && brand) {
+          const ro = new ResizeObserver(() => updateBrandSpace());
+          ro.observe(brand);
+        }
+
+        // Also update once after images load
+        window.addEventListener('load', () => updateBrandSpace());
+
       }
     })();
   </script>
