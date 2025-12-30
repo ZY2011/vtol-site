@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Conrad Challenge | VitalWing VTOL Antivenom Delivery</title>
-  <meta name="description" content="VitalWing is a fixed-wing tailsitter VTOL drone for emergency snake antivenom delivery with cold-chain (2–8°C) and autonomous flight control." />
+  <meta name="description" content="VitalWing is a fixed-wing tailsitter VTOL drone for emergency snake antivenom delivery with 2–8°C cold-chain and autonomous transition control." />
 
   <style>
     :root{
@@ -24,7 +24,9 @@
       --shadow: rgba(0,0,0,0.06);
       --radius: 18px;
 
-      --nav-h: 104px;
+      /* runtime-updated by JS (real nav height) */
+      --nav-h: 78px;
+      --brand-shift: 0px;
     }
 
     *{ box-sizing:border-box; }
@@ -41,20 +43,9 @@
       overflow: hidden; /* One-screen mode */
     }
 
-    /* Top hover trigger strip */
-    .nav-trigger{
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 22px;
-      z-index: 12;
-      background: transparent;
-      padding-left: 160px; /* keep some space near brand */
-      box-sizing: border-box;
-    }
-
-    /* Decorations */
+    /* =========================
+       Decorations
+    ========================= */
     .decor{
       position: fixed;
       pointer-events: none;
@@ -69,7 +60,7 @@
       background: url("./assets/images/deco-1.png") no-repeat center / contain;
     }
     .decor-bottom{
-      bottom: 40px;
+      bottom: 34px;
       left: 50%;
       transform: translateX(-50%);
       width: min(820px, 92vw);
@@ -78,13 +69,166 @@
       opacity: 0.85;
     }
 
-    /* Right-side hint rail (draggable & closable) */
+    /* =========================
+       Splash (GIF first)
+    ========================= */
+    .splash{
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+      display: grid;
+      place-items: center;
+      background: radial-gradient(1200px 700px at 50% 35%, rgba(126,201,195,0.18), rgba(246,247,248,1));
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 360ms ease;
+    }
+    .splash.active{
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .splash-inner{
+      width: min(980px, 92vw);
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 18px;
+      align-items: center;
+    }
+    .splash-card{
+      background: rgba(255,255,255,0.78);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(62,74,86,0.14);
+      box-shadow: 0 18px 38px var(--shadow);
+      border-radius: 22px;
+      overflow: hidden;
+    }
+    .splash-media{
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #fff;
+    }
+    .splash-media img{
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .splash-body{
+      padding: 16px 16px 14px;
+    }
+    .splash-title{
+      margin: 0 0 6px;
+      font-size: 22px;
+      letter-spacing: -0.2px;
+    }
+    .splash-sub{
+      margin: 0;
+      color: var(--text-sub);
+      font-weight: 700;
+      font-size: 14px;
+    }
+    .splash-cta{
+      margin-top: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 900;
+      font-size: 13px;
+      color: #fff;
+      background: var(--accent-secondary);
+      border: 1px solid rgba(62,74,86,0.10);
+      border-radius: 10px;
+      padding: 10px 12px;
+      user-select: none;
+    }
+    .splash-right{
+      display: grid;
+      gap: 14px;
+    }
+    .splash-right .preview{
+      border-radius: 22px;
+      overflow: hidden;
+      border: 1px solid rgba(62,74,86,0.14);
+      box-shadow: 0 18px 38px var(--shadow);
+      background: #fff;
+    }
+    .splash-right .preview img{
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .splash-note{
+      color: var(--text-muted);
+      font-weight: 800;
+      font-size: 12px;
+      line-height: 1.35;
+      padding: 0 4px;
+    }
+
+    /* =========================
+       Brand (always on top-left)
+    ========================= */
+    .brand-fixed{
+      position: fixed;
+      top: 12px;
+      left: 12px;
+      z-index: 13;
+      transform: translateY(var(--brand-shift));
+      transition: transform 220ms ease;
+      user-select: none;
+    }
+    .brand-btn{
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(62,74,86,0.14);
+      background: rgba(255,255,255,0.84);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 14px 30px var(--shadow);
+      text-decoration: none;
+      color: var(--text-main);
+      cursor: pointer;
+    }
+    .brand-btn:hover{
+      box-shadow: 0 18px 38px var(--shadow);
+    }
+    .brand-logo{
+      height: 44px;
+      width: 44px;
+      display: block;
+      object-fit: contain;
+      filter: drop-shadow(0 8px 14px rgba(0,0,0,0.08));
+      flex: 0 0 auto;
+    }
+    .brand-text{
+      display: grid;
+      line-height: 1.1;
+      gap: 2px;
+    }
+    .brand-name{
+      font-weight: 900;
+      letter-spacing: -0.2px;
+      font-size: 18px;
+    }
+    .brand-tag{
+      font-weight: 800;
+      font-size: 12px;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    /* =========================
+       Right-side hint (draggable + closable)
+    ========================= */
     .sidehint{
       position: fixed;
       top: 50%;
       right: 16px;
       transform: translateY(-50%);
-      z-index: 11;
+      z-index: 12;
       display: flex;
       align-items: flex-start;
       gap: 10px;
@@ -97,46 +241,10 @@
       color: var(--text-sub);
       max-width: 240px;
       user-select: none;
+      touch-action: none; /* important for dragging */
       cursor: grab;
-      touch-action: none;
     }
-    .sidehint.dragging{ cursor: grabbing; }
-
-    .sidehint .topbar{
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      display:flex;
-      align-items:center;
-      gap:8px;
-      z-index: 2;
-    }
-    .sidehint .closebtn{
-      width: 28px;
-      height: 28px;
-      border-radius: 10px;
-      border: 1px solid rgba(62,74,86,0.14);
-      background: rgba(246,247,248,0.9);
-      box-shadow: 0 10px 24px var(--shadow);
-      color: var(--line-strong);
-      font-weight: 900;
-      line-height: 1;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      cursor: pointer;
-      user-select:none;
-      transition: transform .08s ease, box-shadow .12s ease;
-    }
-    .sidehint .closebtn:hover{
-      transform: translateY(-1px);
-      box-shadow: 0 14px 30px var(--shadow);
-    }
-    .sidehint .closebtn:focus{
-      outline: 2px solid rgba(126,201,195,0.45);
-      outline-offset: 2px;
-    }
-
+    .sidehint:active{ cursor: grabbing; }
     .sidehint .dot{
       width: 10px;
       height: 10px;
@@ -144,13 +252,13 @@
       background: var(--accent-primary);
       box-shadow: 0 0 0 5px rgba(126,201,195,0.18);
       flex: 0 0 auto;
-      margin-top: 2px;
+      margin-top: 4px;
     }
     .sidehint .txt{
       font-size: 12.5px;
-      font-weight: 800;
-      line-height: 1.3;
-      padding-right: 34px;
+      font-weight: 900;
+      line-height: 1.25;
+      padding-right: 22px;
     }
     .sidehint .keys{
       margin-top: 6px;
@@ -176,20 +284,36 @@
       font-weight: 800;
       font-size: 12px;
     }
-    .sidehint.hide{
-      display:none !important;
+    .hint-close{
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 22px;
+      height: 22px;
+      border-radius: 8px;
+      border: 1px solid rgba(62,74,86,0.16);
+      background: rgba(255,255,255,0.85);
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      color: var(--line-strong);
+      cursor: pointer;
+      user-select: none;
+    }
+    .hint-close:hover{
+      background: rgba(207,233,230,0.55);
     }
 
-    /* Top Navigation (hidden by default; show when mouse near top) */
+    /* =========================
+       Top navigation (appears near top)
+    ========================= */
     .topnav{
       position: fixed;
       top: 0; left: 0; right: 0;
-      height: var(--nav-h);
-      z-index: 10;
-      background: rgba(246,247,248,0.86);
+      z-index: 12;
+      background: rgba(246,247,248,0.88);
       backdrop-filter: blur(10px);
       border-bottom: 1px solid rgba(62,74,86,0.14);
-
       transform: translateY(-110%);
       opacity: 0;
       pointer-events: none;
@@ -201,38 +325,32 @@
       pointer-events: auto;
     }
     .topnav-inner{
-      max-width: 1100px;
-      height: 100%;
+      max-width: 1180px;
       margin: 0 auto;
-      padding: 14px 20px;
+      padding: 12px 16px;
       display:flex;
       align-items:center;
-      justify-content:flex-start;
-      gap: 16px;
+      justify-content:center;
     }
-
     .nav{
       display:flex;
-      gap:8px;
+      gap:10px;
       flex-wrap:wrap;
       align-items: center;
-
-      /* NEW: JS will push nav right so brand never blocks it */
-      margin-left: var(--nav-safe-left, 0px);
-      transition: margin-left 220ms ease;
+      justify-content: center;
     }
     .nav a{
       text-decoration:none;
       color: var(--text-sub);
-      font-weight: 800;
-      padding: 8px 10px;
-      font-size: 13.5px;
+      font-weight: 900;
+      padding: 9px 12px;
       border-radius: 10px;
       border: 1px solid rgba(62,74,86,0.15);
       background: var(--bg-card);
       box-shadow: 0 10px 24px var(--shadow);
       transition: transform .08s ease, box-shadow .12s ease, background .12s ease, color .12s ease;
       user-select:none;
+      font-size: 14px;
       white-space: nowrap;
     }
     .nav a:hover{
@@ -245,72 +363,36 @@
       border-color: transparent;
     }
 
-    /* Brand (logo + name) */
-    .brand{
-      display:inline-flex;
-      align-items:center;
-      gap:12px;
-      text-decoration:none;
-      color: inherit;
-      user-select:none;
-      padding: 6px 8px;
-      border-radius: 14px;
-      border: 1px solid rgba(62,74,86,0.12);
-      background: rgba(255,255,255,0.65);
-      backdrop-filter: blur(8px);
-      box-shadow: 0 12px 26px var(--shadow);
-    }
-    .logo{
-      height: 56px;
-      width: 56px;
-      display: block;
-      filter: drop-shadow(0 10px 18px rgba(0,0,0,0.08));
-    }
-    .brand-name{
-      font-weight: 900;
-      letter-spacing: 0.4px;
-      color: var(--line-strong);
-      font-size: 18px;
-      line-height: 1.1;
-    }
-
-    /* Brand fixed at top-left, always visible */
-    .brand-fixed{
-      position: fixed;
-      top: 14px;
-      left: 16px;
-      right: auto;
-      z-index: 13;
-    }
-
-    /* Stage */
+    /* =========================
+       Stage & pages
+    ========================= */
     .stage{
       position: relative;
       z-index: 2;
       height: 100vh;
-      padding-top: 0;
       overflow: hidden;
+      padding-top: 0;
     }
 
     .container{
       max-width: 1100px;
       margin: 0 auto;
-      padding: 22px 20px 30px;
-      z-index: 2;
+      padding: 70px 20px 18px; /* extra top space so brand doesn't cover content */
       height: 100vh;
       overflow: hidden;
-      position: relative;
+      position: relative; /* for absolute pages */
     }
 
-    /* One-screen pages with fade in/out */
     .page{
       position: absolute;
       inset: 0;
-      overflow: auto;
-      padding: 96px 0 64px; /* leave room for fixed brand */
+      overflow: auto; /* internal scroll per page */
+      padding: 8px 0 64px;
+
       opacity: 0;
       transform: translateY(10px);
       pointer-events: none;
+
       transition: opacity 240ms ease, transform 240ms ease;
     }
     .page.active{
@@ -329,8 +411,9 @@
     .subtitle{
       color: var(--text-sub);
       font-size: 16px;
-      max-width: 860px;
+      max-width: 900px;
       margin: 0 0 18px;
+      font-weight: 700;
     }
     .hero-actions{
       display:flex;
@@ -458,6 +541,7 @@
       display:grid;
       grid-template-columns: 1fr 1fr;
       gap: 14px;
+      align-items: start;
     }
 
     footer{
@@ -469,115 +553,74 @@
       z-index: 2;
     }
 
-    /* ===== Intro / Splash Overlay ===== */
-    .intro-overlay{
-      position: fixed;
-      inset: 0;
-      z-index: 9999;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-      background: rgba(246,247,248,0.92);
-      backdrop-filter: blur(10px);
-      opacity: 1;
-      transition: opacity 260ms ease;
-    }
-    .intro-overlay.hidden{
-      opacity: 0;
-      pointer-events: none;
-    }
-    .intro-card{
-      width: min(980px, 92vw);
-      border-radius: 22px;
-      border: 1px solid rgba(62,74,86,0.14);
-      background: rgba(255,255,255,0.72);
-      box-shadow: 0 18px 40px var(--shadow);
-      overflow: hidden;
-    }
-    .intro-media{
-      display: block;
-      width: 100%;
-      height: auto;
-      background: #fff;
-    }
-    .intro-footer{
-      display:flex;
-      align-items:center;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 14px 16px;
-      color: var(--text-sub);
-    }
-    .intro-title{
-      font-weight: 900;
-      color: var(--line-strong);
-      letter-spacing: 0.2px;
-    }
-    .intro-hint{
-      font-weight: 900;
-      font-size: 13px;
-      color: var(--text-sub);
-      background: rgba(207,233,230,0.55);
-      border: 1px solid rgba(62,74,86,0.14);
-      padding: 8px 10px;
-      border-radius: 12px;
-    }
-
     /* Responsive */
     @media (max-width: 980px){
-      :root{ --nav-h: 126px; }
-      .topnav-inner{
-        padding: 12px 16px;
-        align-items: flex-start;
-      }
-      .logo{ height: 52px; width: 52px; }
-      .brand-name{ font-size: 16px; }
       .sidehint{ display:none; }
-      .brand-fixed{ top: 12px; left: 12px; right: auto; }
-      .page{ padding-top: 92px; }
+      .container{ padding-top: 76px; }
+      .brand-logo{ width: 40px; height: 40px; }
+      .brand-name{ font-size: 16px; }
+      .brand-tag{ font-size: 11px; }
+      h1{ font-size: 34px; }
+      .splash-inner{ grid-template-columns: 1fr; }
     }
-
     @media (max-width: 860px){
-      h1{ font-size: 32px; }
       .two-col{ grid-template-columns: 1fr; }
       .decor-top{ right: 10px; width: 200px; height: 520px; opacity: 0.7; }
     }
-
     @media (max-width: 720px){
       .container{ padding-left: 16px; padding-right: 16px; }
       .decor-bottom{ opacity: 0.6; }
-      .nav a{ font-size: 13px; padding: 8px 10px; }
-      .intro-footer{ flex-direction: column; align-items:flex-start; }
+      .nav a{ font-size: 13px; padding: 9px 10px; }
     }
   </style>
 </head>
 
 <body>
-  <!-- Hover trigger strip -->
-  <div class="nav-trigger" aria-hidden="true"></div>
-
-  <!-- Intro / Splash (shows first) -->
-  <div id="introOverlay" class="intro-overlay" role="dialog" aria-modal="true" aria-label="Intro">
-    <div class="intro-card">
-      <img class="intro-media" src="./assets/images/VTOL.gif" alt="VitalWing VTOL intro animation" />
-      <div class="intro-footer">
-        <div class="intro-title">Vital Wings · VTOL Antivenom Delivery</div>
-        <div class="intro-hint">Click or press any key to enter</div>
-      </div>
-    </div>
-  </div>
-
   <!-- Decorative birds -->
   <div class="decor decor-top" aria-hidden="true"></div>
   <div class="decor decor-bottom" aria-hidden="true"></div>
 
-  <!-- Right-side hint (draggable + close) -->
-  <aside class="sidehint" id="sidehint" aria-label="Page switching hint">
-    <div class="topbar">
-      <button class="closebtn" id="closeHint" type="button" aria-label="Close hint">×</button>
-    </div>
+  <!-- Splash: show GIF first, click/press any key to enter -->
+  <div id="splash" class="splash active" aria-label="Intro">
+    <div class="splash-inner">
+      <div class="splash-card">
+        <div class="splash-media" aria-hidden="true">
+          <img src="./assets/images/VTOL.gif" alt="VitalWing VTOL flight preview (GIF)" />
+        </div>
+        <div class="splash-body">
+          <h3 class="splash-title">VitalWing — an airborne lifeline for snakebite emergencies</h3>
+          <p class="splash-sub">
+            Runway-free VTOL + fixed-wing cruise, cold-chain antivenom delivery to remote clinics.
+          </p>
+          <div class="splash-cta" aria-hidden="true">Click or press any key to enter</div>
+        </div>
+      </div>
 
+      <div class="splash-right">
+        <div class="preview">
+          <img src="./assets/images/VTOL2.jpg" alt="VitalWing aircraft photo" />
+        </div>
+        <div class="splash-note">
+          Tip: After entering, use ↑ / ↓ (or PgUp / PgDn) to switch sections. Scroll only affects the current section.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Brand (always visible; click to Home) -->
+  <div class="brand-fixed" aria-label="Brand">
+    <a class="brand-btn" href="#home" id="brandHome" aria-label="Go to Home">
+      <img class="brand-logo" src="./assets/images/logo黑.png" alt="VitalWing Logo" />
+      <span class="brand-text">
+        <span class="brand-name">Vital Wings</span>
+        <span class="brand-tag">VTOL Antivenom Delivery</span>
+      </span>
+    </a>
+  </div>
+
+  <!-- Right-side hint (draggable + closable) -->
+  <aside id="sidehint" class="sidehint" aria-label="Page switching hint">
+    <button class="hint-close" id="hintClose" aria-label="Close hint">×</button>
     <span class="dot" aria-hidden="true"></span>
     <div>
       <div class="txt">Switch pages by pressing the up and down keys</div>
@@ -586,18 +629,11 @@
         <span class="muted">or</span>
         <kbd>PgUp</kbd><kbd>PgDn</kbd>
       </div>
-      <div class="muted" style="margin-top:8px; font-size:12px;">Tip: drag this box anywhere.</div>
     </div>
   </aside>
 
-  <!-- Brand always visible at top-left (click → Home) -->
-  <a class="brand brand-fixed" href="#home" aria-label="Go to Home">
-    <img src="./assets/images/logo黑.png" alt="VitalWing Project Logo" class="logo" />
-    <span class="brand-name">Vital Wings</span>
-  </a>
-
-  <!-- Top Navigation (appears when mouse near top) -->
-  <div class="topnav" role="banner">
+  <!-- Top nav (shows when mouse near top) -->
+  <div id="topnav" class="topnav" role="banner">
     <div class="topnav-inner">
       <nav class="nav" aria-label="Primary navigation">
         <a href="#home">Home</a>
@@ -620,10 +656,10 @@
 
       <!-- HOME -->
       <section id="home" class="page active" aria-label="Home">
-        <h1>Cold-chain antivenom delivery in minutes, not hours</h1>
+        <h1>An airborne lifeline: antivenom delivered within the golden 3 hours</h1>
         <p class="subtitle">
-          Lifesaving antivenom delivery by drone to remote snakebite victims — designed for fast response,
-          reliable cold-chain (2–8°C), and runway-free vertical takeoff and landing.
+          A fixed-wing tailsitter VTOL drone that reaches mountainous clinics within a 60 km radius in about one hour,
+          while maintaining 2–8°C cold-chain for 80+ minutes — designed for emergency snakebite response.
         </p>
 
         <div class="hero-actions">
@@ -636,45 +672,48 @@
           <div class="card highlight" style="grid-column: span 7;">
             <h2 style="margin-top:0;">What we built</h2>
             <p style="margin:0;">
-              VitalWing is a fixed-wing tailsitter VTOL drone that combines vertical takeoff/landing with efficient
-              fixed-wing cruise. Using passive insulation for the payload bay and autonomous flight control,
-              it aims to deliver antivenom within the critical treatment window.
+              VitalWing combines runway-free vertical takeoff/landing with efficient fixed-wing cruise.
+              It uses passive thermal management (PP-board insulation) and autonomous flight control to shorten delivery
+              from 3+ hours to around 60 minutes for remote missions — at a single-trip cost below ¥50.
             </p>
             <div style="margin-top:12px;">
-              <span class="pill">VTOL + fixed-wing cruise</span>
-              <span class="pill">2–8°C cold-chain</span>
-              <span class="pill">Autonomous navigation</span>
-            </div>
-
-            <!-- NEW: VTOL2 photo on Home -->
-            <div class="figure" style="margin-top:14px;">
-              <img src="./assets/images/VTOL2.jpg" alt="VitalWing VTOL drone photo" />
-              <div class="figcap">VitalWing VTOL prototype photo.</div>
+              <span class="pill">VTOL + Fixed-wing cruise</span>
+              <span class="pill">2–8°C cold-chain (80+ min)</span>
+              <span class="pill">Airspeed + Pitch PID transition</span>
+              <span class="pill">≤ ¥50 per mission (target/achieved)</span>
             </div>
           </div>
 
           <div class="card" style="grid-column: span 5;">
-            <h2 style="margin-top:0;">Quick facts</h2>
+            <h2 style="margin-top:0;">Key metrics</h2>
             <div class="grid" style="margin-top:10px;">
               <div class="kpi" style="grid-column: span 6;">
-                <strong>&lt; 60 min</strong>
-                <span>target delivery time</span>
+                <strong>≤ 60 min</strong>
+                <span>delivery target</span>
               </div>
               <div class="kpi" style="grid-column: span 6;">
-                <strong>50+ km</strong>
-                <span>range (target)</span>
+                <strong>60 km</strong>
+                <span>service radius</span>
               </div>
               <div class="kpi" style="grid-column: span 6;">
                 <strong>2–8°C</strong>
-                <span>payload temperature</span>
+                <span>80+ min stability</span>
               </div>
               <div class="kpi" style="grid-column: span 6;">
-                <strong>VTOL</strong>
-                <span>runway-free ops</span>
+                <strong>95%+</strong>
+                <span>transition success</span>
+              </div>
+              <div class="kpi" style="grid-column: span 6;">
+                <strong>70 km/h</strong>
+                <span>cruise speed</span>
+              </div>
+              <div class="kpi" style="grid-column: span 6;">
+                <strong>≤ ¥50</strong>
+                <span>single-trip cost</span>
               </div>
             </div>
             <p class="muted" style="margin:12px 0 0;">
-              Use the ↑ and ↓ keys (or PgUp/PgDn) to switch pages, or use the top navigation.
+              Use ↑ / ↓ (or PgUp / PgDn) to switch sections, or open the top navigation by moving your mouse to the very top.
             </p>
           </div>
         </div>
@@ -685,9 +724,9 @@
         <h2>The Problem</h2>
         <div class="card danger">
           <p>
-            Snakebite envenoming is a life-threatening emergency. In many rural regions, antivenom is not available locally.
-            Poor infrastructure and difficult terrain delay delivery, and survival drops sharply if antivenom is not administered
-            within the critical three-hour window.
+            Snakebite envenoming is a life-threatening emergency. Globally there are ~5.4 million snakebites per year,
+            causing 63,400+ deaths and ~400,000 permanent disabilities. In many remote regions, victims cannot obtain antivenom
+            within the critical golden 3-hour emergency window due to slow, infrastructure-dependent transport.
           </p>
 
           <hr class="split" />
@@ -695,15 +734,15 @@
           <div class="grid">
             <div class="kpi" style="grid-column: span 4;">
               <strong>5.4M</strong>
-              <span>snakebites per year (global)</span>
+              <span>snakebites / year</span>
             </div>
             <div class="kpi" style="grid-column: span 4;">
               <strong>63,400+</strong>
-              <span>deaths per year</span>
+              <span>deaths / year</span>
             </div>
             <div class="kpi" style="grid-column: span 4;">
-              <strong>≤ 3 hours</strong>
-              <span>critical treatment window</span>
+              <strong>400,000</strong>
+              <span>disabilities / year</span>
             </div>
           </div>
 
@@ -713,8 +752,17 @@
             <div class="figcap">Global Snakebite Mortality Distribution (illustrative summary by region).</div>
           </div>
 
+          <hr class="split" />
+
+          <h3 style="margin:0 0 8px; font-size:16px;">Why urgency is rising</h3>
+          <ul>
+            <li><b>Rural population aging:</b> more vulnerable patients in rural areas</li>
+            <li><b>Climate change:</b> snake habitats expanding into previously safer zones</li>
+            <li><b>Healthcare worker shortages:</b> limited ground-response capacity in remote areas</li>
+          </ul>
+
           <p class="muted" style="margin-top:12px;">
-            Target context: remote communities where road speed can be extremely low and time-to-treatment is unpredictable.
+            Our goal is to make “timely antivenom access” reliable — even when roads are not.
           </p>
         </div>
       </section>
@@ -724,15 +772,17 @@
         <h2>Our Solution</h2>
         <div class="card highlight">
           <p>
-            VitalWing is a fixed-wing tailsitter VTOL drone built for emergency antivenom delivery. It takes off and lands vertically
-            in confined areas, then transitions into efficient fixed-wing cruise for long-range, high-speed flight — while maintaining
-            cold-chain requirements (2–8°C) using passive insulation.
+            VitalWing is a fixed-wing tailsitter VTOL UAV for emergency antivenom delivery. It takes off and lands vertically
+            in confined areas, then transitions into efficient fixed-wing cruise for long-range, high-speed flight —
+            while maintaining 2–8°C using passive insulation.
           </p>
 
           <div style="margin-top:10px;">
-            <span class="pill">VTOL + fixed-wing cruise</span>
-            <span class="pill">Cold-chain 2–8°C</span>
-            <span class="pill">Autonomous flight (ESP32 + ArduPilot)</span>
+            <span class="pill">Vertical Takeoff</span>
+            <span class="pill">Autonomous Transition to Cruise</span>
+            <span class="pill">Waypoint Navigation</span>
+            <span class="pill">Transition to Hover</span>
+            <span class="pill">Vertical Landing</span>
           </div>
 
           <hr class="split" />
@@ -746,13 +796,16 @@
             </div>
 
             <div>
-              <h3 style="margin:0 0 8px; font-size:16px;">Key Design Characteristics</h3>
+              <h3 style="margin:0 0 8px; font-size:16px;">What makes it effective</h3>
               <ul>
-                <li><b>Fast response:</b> targets &lt; 60-minute delivery window for remote missions</li>
-                <li><b>Long-range efficiency:</b> fixed-wing lift enables higher speed and range than multicopters</li>
-                <li><b>Runway-free:</b> VTOL operations for clinics and confined landing zones</li>
-                <li><b>Cold-chain:</b> passive insulation (e.g., PP-board design) supports 2–8°C stability</li>
+                <li><b>Speed + range:</b> fixed-wing lift enables efficient 70 km/h cruise and ~60 km service radius</li>
+                <li><b>Runway-free ops:</b> VTOL enables clinics and mountainous landing zones</li>
+                <li><b>Cold-chain stability:</b> optimized PP-board insulation keeps 2–8°C for 80+ minutes</li>
+                <li><b>Cost:</b> single-trip cost below ¥50 supports sustainable operations</li>
               </ul>
+              <p class="muted" style="margin-top:10px;">
+                Compared to ambulances (often 3+ hours) and multicopters (&lt;30 km radius), VitalWing targets rapid, reliable last-mile delivery.
+              </p>
             </div>
           </div>
         </div>
@@ -763,31 +816,48 @@
         <h2>Innovation</h2>
         <div class="grid">
           <div class="card" style="grid-column: span 7;">
-            <h3 style="margin:0 0 8px; font-size:16px;">Unique Value Proposition</h3>
+            <h3 style="margin:0 0 8px; font-size:16px;">Novel transition control (the hard part)</h3>
             <p style="margin:0;">
-              Compared with slow ground transport and low-range multicopter drones, a tailsitter VTOL combines runway-free landing
-              with high-efficiency fixed-wing cruise — enabling rapid, reliable, and cost-effective delivery to remote locations.
+              Unlike conventional drones that rely mainly on accelerometer data, VitalWing integrates real-time airspeed sensing
+              with pitch-angle feedback through a custom-tuned PID controller. This dual-parameter approach enables reliable VTOL ↔ cruise
+              transitions even under turbulent mountain wind conditions.
             </p>
 
             <hr class="split" />
 
-            <h3 style="margin:0 0 8px; font-size:16px;">What’s Hard (and Why It Matters)</h3>
-            <ul>
-              <li><b>Transition stability:</b> smooth VTOL ↔ cruise switching under wind and vibration constraints</li>
-              <li><b>Cold-chain integrity:</b> maintaining 2–8°C without heavy, power-hungry refrigeration</li>
-              <li><b>Repeatable autonomy:</b> reliable waypoint navigation and precision landing</li>
-            </ul>
+            <div class="grid">
+              <div class="kpi" style="grid-column: span 6;">
+                <strong>95% success</strong>
+                <span>transition reliability</span>
+              </div>
+              <div class="kpi" style="grid-column: span 6;">
+                <strong>70–80%</strong>
+                <span>typical industry baseline</span>
+              </div>
+            </div>
+
+            <hr class="split" />
+
+            <h3 style="margin:0 0 8px; font-size:16px;">Cold-chain without heavy refrigeration</h3>
+            <p style="margin:0;">
+              An optimized PP-board insulation payload bay maintains antivenom at 2–8°C for 80+ minutes,
+              improving reliability while keeping the system lightweight and power-efficient.
+            </p>
           </div>
 
           <div class="card" style="grid-column: span 5;">
-            <h3 style="margin:0 0 8px; font-size:16px;">Sustainable Advantage</h3>
+            <h3 style="margin:0 0 8px; font-size:16px;">Defensibility</h3>
             <ul>
-              <li>Flight control tuning know-how (PID, gain scheduling, transition logic)</li>
-              <li>Iterative prototyping across aerodynamics, insulation, and cost</li>
-              <li>Accumulated testing data and operational knowledge base</li>
+              <li><b>Patent applied:</b> PID-based VTOL transitioning logic and cruise control</li>
+              <li>Iterative prototype data: transition logs + thermal tests</li>
+              <li>Operations know-how: emergency workflow, safety and compliance</li>
             </ul>
-            <p class="muted" style="margin:10px 0 0;">
-              Advantage compounds through flight logs, thermal tests, and real deployment feedback.
+
+            <hr class="split" />
+
+            <h3 style="margin:0 0 8px; font-size:16px;">Positioning</h3>
+            <p style="margin:0; color: var(--text-sub); font-weight: 800;">
+              Rapid, steady, and affordable airborne lifeline for emergency medical logistics in mountainous areas.
             </p>
           </div>
         </div>
@@ -798,41 +868,51 @@
         <h2>Validation & Transition Control Logic</h2>
         <div class="card highlight">
           <p>
-            We validate performance with mission-level metrics tied to life-critical delivery: delivery time, temperature stability,
-            autonomous transition success, navigation accuracy, and unit economics.
+            We validate performance with mission-level metrics tied to emergency delivery:
+            delivery time, temperature stability, autonomous transition success, speed/range,
+            and reliability in wind.
           </p>
 
           <div class="grid" style="margin-top:10px;">
             <div class="kpi" style="grid-column: span 4;">
-              <strong>&lt; 60 min</strong>
-              <span>target delivery time</span>
+              <strong>Wind 9 m/s</strong>
+              <span>hover stability tolerance</span>
             </div>
             <div class="kpi" style="grid-column: span 4;">
-              <strong>2–8°C</strong>
-              <span>cold-chain temperature band</span>
+              <strong>&gt;95%</strong>
+              <span>transition success</span>
             </div>
             <div class="kpi" style="grid-column: span 4;">
-              <strong>95%+</strong>
-              <span>transition success (target)</span>
+              <strong>70 km/h</strong>
+              <span>cruise efficiency</span>
             </div>
             <div class="kpi" style="grid-column: span 6;">
-              <strong>≤ ¥2000</strong>
-              <span>unit cost target</span>
+              <strong>80 min</strong>
+              <span>2–8°C stability (final 6.3°C)</span>
             </div>
             <div class="kpi" style="grid-column: span 6;">
-              <strong>≤ ¥50</strong>
-              <span>mission cost target</span>
+              <strong>98 / 100</strong>
+              <span>simulated missions reached target</span>
             </div>
           </div>
 
           <div class="figure" style="margin-top:14px;">
             <img src="./assets/images/transition-control-logic.png"
                  alt="VTOL transition control logic diagram" />
-            <div class="figcap">Transition Control Logic (hover → transition → forward flight), including key parameters and triggers.</div>
+            <div class="figcap">Transition Control Logic (hover → transition → cruise), with key parameters and triggers.</div>
           </div>
 
+          <hr class="split" />
+
+          <h3 style="margin:0 0 8px; font-size:16px;">Progress signals</h3>
+          <ul>
+            <li><b>Two prototype iterations</b> validated in outdoor testing</li>
+            <li><b>Flight authorization</b> obtained from the civil aviation board</li>
+            <li><b>Stakeholder interest</b> from Guangxi Medical University and Anning Municipal Hospital</li>
+          </ul>
+
           <p class="muted" style="margin-top:12px;">
-            Validation focuses on stability (wind & transition), cold-chain integrity, and repeatable autonomous operations.
+            Next focus: expand real-world deliveries through pilot partners, and refine protocols for scale.
           </p>
         </div>
       </section>
@@ -846,7 +926,8 @@
           </p>
 
           <div class="figure">
-            <img src="./assets/images/drone-specifications.png" alt="Drone specifications table/image" />
+            <img src="./assets/images/drone-specifications.png"
+                 alt="Drone specifications table/image" />
             <div class="figcap">Drone Specifications (dimensions, structure, and target performance metrics).</div>
           </div>
         </div>
@@ -855,20 +936,86 @@
       <!-- Market -->
       <section id="market" class="page">
         <h2>Go-to-Market</h2>
+
         <div class="grid">
           <div class="card" style="grid-column: span 6;">
-            <h3 style="margin:0 0 8px; font-size:16px;">Customer Segments</h3>
+            <h3 style="margin:0 0 8px; font-size:16px;">Customer segmentation</h3>
             <ul>
-              <li><b>Primary customers:</b> rural hospitals/clinics and health NGOs in snakebite-prevalent regions</li>
-              <li><b>End beneficiaries:</b> remote snakebite victims who face delayed access to antivenom</li>
+              <li><b>Primary customer (decision maker & payer):</b> County / Municipal CDC and Health Commissions</li>
+              <li><b>End user (operator):</b> Township health center medical staff</li>
+              <li><b>Final beneficiary:</b> Snakebite victims in remote villages within a 60 km radius</li>
+            </ul>
+
+            <hr class="split" />
+
+            <h3 style="margin:0 0 8px; font-size:16px;">Decision criteria</h3>
+            <ul>
+              <li><b>CDC / Health Commission:</b> cost per life saved, coverage, compliance</li>
+              <li><b>Township health centers:</b> ease of operation, reliability, delivery speed</li>
             </ul>
           </div>
 
           <div class="card" style="grid-column: span 6;">
-            <h3 style="margin:0 0 8px; font-size:16px;">Channels & Early Adopters</h3>
-            <p style="margin:0;">
-              Initial deployment through pilot partnerships with well-equipped regional hospitals and health NGOs in high-incident areas.
-              Demonstration pilots build trust, refine protocols, and generate real-world data for scale-up.
+            <h3 style="margin:0 0 8px; font-size:16px;">Market size & focus regions</h3>
+            <p style="margin:0; color: var(--text-sub); font-weight: 800;">
+              China’s high-risk snakebite provinces (Yunnan, Guangxi, Guizhou, Hainan) serve ~180M rural population,
+              with ~150,000 annual snakebite cases requiring emergency antivenom.
+            </p>
+            <hr class="split" />
+            <div class="kpi">
+              <strong>≈ ¥3B / year</strong>
+              <span>addressable emergency delivery service market (China)</span>
+            </div>
+
+            <p class="muted" style="margin-top:12px;">
+              Entry strategy: pilot partnerships with county health commissions and health centers in high-incidence, hard-transport regions.
+            </p>
+          </div>
+        </div>
+
+        <div class="grid" style="margin-top:14px;">
+          <div class="card" style="grid-column: span 12;">
+            <h3 style="margin:0 0 8px; font-size:16px;">Pilot roadmap</h3>
+            <ul>
+              <li><b>Phase 1 (Months 1–6):</b> 2–3 partner health centers in Yunnan/Guangxi; 100 real emergency deliveries</li>
+              <li><b>Phase 2 (Months 7–12):</b> expand to 10–15 centers; standardize protocols + training</li>
+              <li><b>Phase 3 (Year 2):</b> scale to 50+ locations via government procurement; cover 5,000 villages</li>
+            </ul>
+
+            <hr class="split" />
+
+            <h3 style="margin:0 0 8px; font-size:16px;">Pilot success metrics</h3>
+            <div class="grid">
+              <div class="kpi" style="grid-column: span 3;">
+                <strong>90%+</strong>
+                <span>on-time ≤60 min</span>
+              </div>
+              <div class="kpi" style="grid-column: span 3;">
+                <strong>0</strong>
+                <span>temperature excursions</span>
+              </div>
+              <div class="kpi" style="grid-column: span 3;">
+                <strong>80%+</strong>
+                <span>medical staff satisfaction</span>
+              </div>
+              <div class="kpi" style="grid-column: span 3;">
+                <strong>Documented</strong>
+                <span>cost savings vs traditional</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid" style="margin-top:14px;">
+          <div class="card" style="grid-column: span 12;">
+            <h3 style="margin:0 0 8px; font-size:16px;">Competition & positioning</h3>
+            <ul>
+              <li><b>Ground ambulances:</b> slow on rough terrain (~30 km/h), infrastructure-limited, variable cost</li>
+              <li><b>Multicopter drones:</b> short range (&lt;30 km), low speed (30–40 km/h), limited radius</li>
+              <li><b>Commercial fixed-wing VTOL (e.g., SF Express / JD Logistics):</b> not purpose-built for medical cold-chain and emergency priority authorization</li>
+            </ul>
+            <p class="muted" style="margin-top:10px;">
+              VitalWing’s edge: purpose-built medical cold-chain + high-reliability transition control for mountainous emergency logistics.
             </p>
           </div>
         </div>
@@ -876,25 +1023,71 @@
 
       <!-- Business -->
       <section id="business" class="page">
-        <h2>Business Model</h2>
-        <div class="card">
-          <h3 style="margin:0 0 8px; font-size:16px;">Revenue Streams</h3>
-          <ul>
-            <li><b>Hardware sales:</b> drone system sales (pricing depends on configuration and deployment package)</li>
-            <li><b>Per-mission service:</b> delivery fee per flight mission (pricing depends on region and SLA)</li>
-            <li><b>Maintenance & support:</b> training, spares, and operational support contracts</li>
-          </ul>
+        <h2>Business Model & Fundraising</h2>
+
+        <div class="grid">
+          <div class="card" style="grid-column: span 6;">
+            <h3 style="margin:0 0 8px; font-size:16px;">Revenue</h3>
+            <ul>
+              <li><b>Drone sales:</b> ¥6,000 per unit (≈70% of initial revenue)</li>
+              <li><b>Per-trip rental / transport fee:</b> ¥200 per flight (≈30% of initial revenue)</li>
+            </ul>
+
+            <hr class="split" />
+
+            <h3 style="margin:0 0 8px; font-size:16px;">Costs</h3>
+            <ul>
+              <li><b>Airframe + components:</b> ¥1,500–¥2,000 per unit</li>
+              <li><b>R&D + software allocation:</b> ~¥300 per unit</li>
+              <li><b>Deployment + maintenance:</b> ~¥50 per mission</li>
+            </ul>
+          </div>
+
+          <div class="card" style="grid-column: span 6;">
+            <h3 style="margin:0 0 8px; font-size:16px;">Unit economics</h3>
+            <ul>
+              <li><b>Gross margin:</b> ≥ 50% per unit sale (target)</li>
+              <li><b>Break-even:</b> ~30 rental missions per drone (or direct sale) to cover unit + allocated R&D</li>
+              <li><b>Utilization:</b> 50–100 missions/year per unit by serving 3–5 health centers</li>
+              <li><b>Profitability timeline:</b> 18–24 months with 100+ drones deployed</li>
+            </ul>
+
+            <p class="muted" style="margin-top:10px;">
+              Beyond antivenom, the platform can carry other time-critical medical supplies (blood samples, emergency meds, vaccines),
+              expanding the market by ~3–5×.
+            </p>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:14px;">
+          <h3 style="margin:0 0 8px; font-size:16px;">Fundraising plan</h3>
+          <p style="margin:0; color: var(--text-sub); font-weight: 800;">
+            Seeking ¥500,000 seed funding to finalize production-ready design, pilot deployment, and team operations.
+          </p>
 
           <hr class="split" />
 
-          <h3 style="margin:0 0 8px; font-size:16px;">Cost Targets</h3>
-          <ul>
-            <li><b>Unit cost target:</b> ≤ ¥2,000</li>
-            <li><b>Operating cost target:</b> ≤ ¥50 per mission</li>
-          </ul>
+          <div class="grid">
+            <div class="kpi" style="grid-column: span 4;">
+              <strong>50%</strong>
+              <span>product dev + compliance</span>
+            </div>
+            <div class="kpi" style="grid-column: span 4;">
+              <strong>30%</strong>
+              <span>pilot deployment</span>
+            </div>
+            <div class="kpi" style="grid-column: span 4;">
+              <strong>20%</strong>
+              <span>team operations</span>
+            </div>
+          </div>
 
-          <p class="muted" style="margin-top:10px;">
-            The model combines upfront deployment (hardware) with ongoing operational revenue (missions), supporting sustainable operations.
+          <hr class="split" />
+
+          <h3 style="margin:0 0 8px; font-size:16px;">Risk mitigation</h3>
+          <p class="muted" style="margin:0;">
+            If regulatory approval delays occur, reallocate budget to compliance consulting/testing and keep contingency reserve
+            for unforeseen technical issues.
           </p>
         </div>
       </section>
@@ -904,13 +1097,27 @@
         <h2>Impact</h2>
         <div class="card highlight">
           <p>
-            By enabling reliable antivenom delivery within the critical window, VitalWing can reduce preventable deaths and
-            strengthen rural healthcare access through scalable aerial logistics.
+            By enabling reliable antivenom delivery within the golden emergency window, VitalWing aims to reduce preventable deaths
+            and strengthen rural healthcare resilience through scalable aerial logistics.
           </p>
-          <ul>
-            <li>Improves time-to-treatment in regions with poor road infrastructure</li>
-            <li>Scales via hub placement strategies and repeatable autonomous missions</li>
-            <li>Supports global goals to reduce snakebite mortality by improving access to timely treatment</li>
+
+          <hr class="split" />
+
+          <div class="grid">
+            <div class="kpi" style="grid-column: span 6;">
+              <strong>&lt;30% → &gt;95%</strong>
+              <span>golden-time delivery rate improvement (target)</span>
+            </div>
+            <div class="kpi" style="grid-column: span 6;">
+              <strong>Up to 14,000</strong>
+              <span>deaths preventable within China (potential)</span>
+            </div>
+          </div>
+
+          <ul style="margin-top:12px;">
+            <li>Improves time-to-treatment where roads and terrain delay emergency response</li>
+            <li>Scales via cluster deployment and standardized protocols</li>
+            <li>Reduces rescue costs and long-term medical burdens from disability</li>
           </ul>
         </div>
       </section>
@@ -923,7 +1130,8 @@
           <p style="margin:0;">
             Formed in early 2024, our team came together after learning about a tragic case where a child in Nigeria died
             in a clinic while waiting for antivenom delivery—highlighting a critical last-mile medical logistics gap.
-            We combined our engineering and product skills to build a tangible solution.
+            We combined our engineering and product skills to build a tangible solution, and we are actively seeking advisory
+            support in medical logistics and regulatory compliance.
           </p>
           <p class="muted" style="margin:10px 0 0;">
             Core roles are structured to cover airframe/aerodynamics, mechanical/robotics execution, and product/market deployment.
@@ -935,7 +1143,7 @@
             <h3 style="margin:0 0 8px; font-size:16px;">Zihan — Airframe & Aerodynamics</h3>
             <p style="margin:0; color: var(--text-sub);">
               Experienced in CAD airfoil modeling and airframe design. Leads aerodynamic optimization, structural layout,
-              and prototype iteration to achieve high-efficiency cruise and stable VTOL behavior.
+              and prototype iteration to achieve efficient cruise and stable VTOL behavior.
             </p>
             <hr class="split" />
             <p class="muted" style="margin:0;">
@@ -947,7 +1155,7 @@
             <h3 style="margin:0 0 8px; font-size:16px;">Jason — Mechanical Engineering & Robotics</h3>
             <p style="margin:0; color: var(--text-sub);">
               Extensive experience in mechanical engineering, especially robotics. Drives mechanical integration,
-              assembly reliability, and field-maintainable design to support repeatable outdoor testing and deployment.
+              assembly reliability, and field-maintainable design for repeatable outdoor testing and deployment.
             </p>
             <hr class="split" />
             <p class="muted" style="margin:0;">
@@ -959,7 +1167,7 @@
             <h3 style="margin:0 0 8px; font-size:16px;">Bella — Marketing & Product Launch</h3>
             <p style="margin:0; color: var(--text-sub);">
               Experienced in marketing and product launch. Leads storytelling, outreach, and partnership-building with
-              health NGOs and public health stakeholders, turning prototype validation into real-world pilot deployments.
+              public health stakeholders, turning prototype validation into real-world pilot deployments.
             </p>
             <hr class="split" />
             <p class="muted" style="margin:0;">
@@ -979,11 +1187,35 @@
 
   <script>
     (function () {
+      /* =========================
+         Splash enter
+      ========================= */
+      const splash = document.getElementById('splash');
+      let entered = false;
+
+      function enterSite(){
+        if (entered) return;
+        entered = true;
+        splash.classList.remove('active');
+        setTimeout(() => {
+          splash.style.display = 'none';
+        }, 420);
+      }
+
+      splash.addEventListener('click', enterSite);
+      window.addEventListener('keydown', (e) => {
+        if (!entered) {
+          // first key press enters the site (do not switch page yet)
+          enterSite();
+          e.preventDefault();
+        }
+      }, { capture: true });
+
+      /* =========================
+         Page switching (one-screen)
+      ========================= */
       const pages = Array.from(document.querySelectorAll('.page'));
       const navLinks = Array.from(document.querySelectorAll('.nav a[href^="#"]'));
-      const topnav = document.querySelector('.topnav');
-      const trigger = document.querySelector('.nav-trigger');
-
       if (!pages.length) return;
 
       const pageIds = pages.map(p => p.id).filter(Boolean);
@@ -1020,79 +1252,7 @@
         if (currentIndex > 0) showPageById(pageIds[currentIndex - 1], true);
       }
 
-      /* ===== Intro gate (GIF first) ===== */
-      const introOverlay = document.getElementById('introOverlay');
-      let entered = false;
-
-      function enterSite() {
-        if (entered) return;
-        entered = true;
-
-        showPageById('home', true);
-
-        if (introOverlay) {
-          introOverlay.classList.add('hidden');
-          setTimeout(() => {
-            if (introOverlay && introOverlay.parentNode) introOverlay.parentNode.removeChild(introOverlay);
-          }, 300);
-        }
-      }
-
-      document.addEventListener('pointerdown', (e) => {
-        if (entered) return;
-        e.preventDefault();
-        e.stopPropagation();
-        enterSite();
-      }, true);
-
-      window.addEventListener('keydown', (e) => {
-        if (entered) return;
-        e.preventDefault();
-        e.stopPropagation();
-        enterSite();
-      }, true);
-
-      /* ===== FIX: compute real safe-left offset so brand never blocks the nav ===== */
-      const brand = document.querySelector('.brand-fixed');
-      const inner = document.querySelector('.topnav-inner');
-
-      function setNavSafeLeft(px){
-        document.documentElement.style.setProperty('--nav-safe-left', `${px}px`);
-      }
-
-      function updateNavSafeLeft(){
-        if (!brand || !inner) { setNavSafeLeft(0); return; }
-
-        const brandRect = brand.getBoundingClientRect();
-        const innerRect = inner.getBoundingClientRect();
-
-        const innerStyle = window.getComputedStyle(inner);
-        const innerPadLeft = parseFloat(innerStyle.paddingLeft) || 0;
-        const contentLeft = innerRect.left + innerPadLeft;
-
-        const gap = 14;
-        const desiredLeft = brandRect.right + gap;
-
-        const offset = Math.max(0, Math.ceil(desiredLeft - contentLeft));
-        setNavSafeLeft(offset);
-      }
-
-      updateNavSafeLeft();
-      window.addEventListener('resize', updateNavSafeLeft);
-      window.addEventListener('orientationchange', updateNavSafeLeft);
-
-      if (document.fonts && document.fonts.ready) {
-        document.fonts.ready.then(updateNavSafeLeft);
-      }
-
-      if (window.ResizeObserver && brand) {
-        const ro = new ResizeObserver(updateNavSafeLeft);
-        ro.observe(brand);
-      }
-
-      window.addEventListener('load', updateNavSafeLeft);
-
-      /* ===== Initial page: hash > home (but intro overlay blocks interaction until enter) ===== */
+      // Initial page: hash > home
       const initial = (location.hash || '#home').replace('#','');
       currentIndex = pageIds.includes(initial) ? pageIds.indexOf(initial) : 0;
       pages.forEach((p, i) => {
@@ -1101,7 +1261,7 @@
       });
       setActiveNav(pageIds[currentIndex]);
 
-      /* ===== Nav click ===== */
+      // Nav click
       navLinks.forEach(a => {
         a.addEventListener('click', (e) => {
           const targetId = a.getAttribute('href').replace('#','');
@@ -1111,10 +1271,24 @@
         });
       });
 
-      /* ===== Keyboard: Arrow / PageUpDown / Space (only after entering) ===== */
+      // Brand click -> home (also works without relying on default hash behavior)
+      const brandHome = document.getElementById('brandHome');
+      if (brandHome){
+        brandHome.addEventListener('click', (e) => {
+          e.preventDefault();
+          showPageById('home', true);
+        });
+      }
+
+      // Keyboard: Arrow / PageUpDown (only after entering)
       window.addEventListener('keydown', (e) => {
         if (!entered) return;
-        if (['ArrowDown','PageDown',' '].includes(e.key)) {
+
+        // avoid hijacking when user is typing in inputs (future-proof)
+        const tag = (document.activeElement && document.activeElement.tagName) ? document.activeElement.tagName.toLowerCase() : '';
+        if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
+
+        if (['ArrowDown','PageDown'].includes(e.key)) {
           e.preventDefault();
           nextPage();
         } else if (['ArrowUp','PageUp'].includes(e.key)) {
@@ -1123,7 +1297,7 @@
         }
       });
 
-      /* ===== Touch swipe (mobile) ===== */
+      // Touch swipe (mobile) (only after entering)
       let touchY = null;
       window.addEventListener('touchstart', (e) => {
         if (!entered) return;
@@ -1143,117 +1317,152 @@
         touchY = null;
       }, { passive: true });
 
-      /* ===== Hash change ===== */
+      // Hash change (open link directly)
       window.addEventListener('hashchange', () => {
-        if (!entered) return;
         const id = (location.hash || '#home').replace('#','');
         if (pageIds.includes(id)) showPageById(id, false);
       });
 
-      /* ===== Top nav appears when mouse near the top ===== */
+      /* =========================
+         Top nav show-on-hover-top
+         + fix brand overlap via CSS var --brand-shift = nav height
+      ========================= */
+      const topnav = document.getElementById('topnav');
       let navPinned = false;
+      let hideTimer = null;
 
-      function showNav(){
+      function setNavShown(shown){
         if (!topnav) return;
-        topnav.classList.add('show');
-        requestAnimationFrame(updateNavSafeLeft);
-      }
-      function hideNav(){
-        if (!topnav) return;
-        topnav.classList.remove('show');
+        topnav.classList.toggle('show', shown);
+
+        // update nav height var (wrap-safe)
+        const h = shown ? topnav.offsetHeight : topnav.offsetHeight; // still measurable
+        document.documentElement.style.setProperty('--nav-h', (h || 78) + 'px');
+        document.documentElement.style.setProperty('--brand-shift', shown ? (h || 78) + 'px' : '0px');
       }
 
+      function scheduleHide(){
+        clearTimeout(hideTimer);
+        hideTimer = setTimeout(() => {
+          if (!navPinned) setNavShown(false);
+        }, 160);
+      }
+
+      // show when mouse near top
       window.addEventListener('mousemove', (e) => {
-        if (navPinned) return;
-        if (e.clientY <= 24) showNav();
-        else hideNav();
+        if (!entered) return;
+        if (e.clientY <= 24) {
+          setNavShown(true);
+        } else if (!navPinned) {
+          scheduleHide();
+        }
       });
 
-      if (topnav) {
+      if (topnav){
         topnav.addEventListener('mouseenter', () => {
           navPinned = true;
-          showNav();
+          setNavShown(true);
         });
         topnav.addEventListener('mouseleave', () => {
           navPinned = false;
-          hideNav();
+          scheduleHide();
         });
       }
 
-      if (trigger) {
-        trigger.addEventListener('mouseenter', showNav);
-      }
+      // also show nav when user focuses to very top via touch (optional)
+      window.addEventListener('scroll', () => { /* body doesn't scroll */ }, { passive: true });
 
-      /* ===== Side hint close + remember ===== */
+      /* =========================
+         Side hint: draggable + closable (persisted)
+      ========================= */
       const sidehint = document.getElementById('sidehint');
-      const closeHint = document.getElementById('closeHint');
+      const hintClose = document.getElementById('hintClose');
 
-      if (sidehint && localStorage.getItem('vw_hint_hidden') === '1') {
-        sidehint.classList.add('hide');
+      function loadHintState(){
+        try{
+          const hidden = localStorage.getItem('vw_hint_hidden') === '1';
+          const pos = localStorage.getItem('vw_hint_pos');
+          if (sidehint){
+            sidehint.style.display = hidden ? 'none' : 'flex';
+            if (pos){
+              const {x,y} = JSON.parse(pos);
+              // switch to explicit positioning if stored
+              sidehint.style.left = x + 'px';
+              sidehint.style.top = y + 'px';
+              sidehint.style.right = 'auto';
+              sidehint.style.transform = 'translateY(0)';
+            }
+          }
+        }catch(_){}
       }
+      loadHintState();
 
-      if (sidehint && closeHint) {
-        closeHint.addEventListener('click', (e) => {
+      if (hintClose && sidehint){
+        hintClose.addEventListener('click', (e) => {
           e.stopPropagation();
-          sidehint.classList.add('hide');
-          try { localStorage.setItem('vw_hint_hidden', '1'); } catch(_) {}
+          sidehint.style.display = 'none';
+          try{ localStorage.setItem('vw_hint_hidden','1'); }catch(_){}
         });
       }
 
-      /* ===== Side hint dragging ===== */
-      if (sidehint) {
+      if (sidehint){
         let dragging = false;
-        let offsetX = 0, offsetY = 0;
+        let startX = 0, startY = 0;
+        let baseX = 0, baseY = 0;
 
-        function ensureAbsolutePosition(){
+        function clamp(v, min, max){ return Math.max(min, Math.min(max, v)); }
+
+        sidehint.addEventListener('pointerdown', (e) => {
+          // ignore dragging when clicking close button
+          if (e.target && e.target.id === 'hintClose') return;
+
+          dragging = true;
+          sidehint.setPointerCapture(e.pointerId);
+
           const rect = sidehint.getBoundingClientRect();
+          startX = e.clientX;
+          startY = e.clientY;
+          baseX = rect.left;
+          baseY = rect.top;
+
+          // switch to explicit coordinates
           sidehint.style.left = rect.left + 'px';
           sidehint.style.top = rect.top + 'px';
           sidehint.style.right = 'auto';
-          sidehint.style.transform = 'none';
-        }
-
-        sidehint.addEventListener('pointerdown', (e) => {
-          if (e.target && e.target.closest && e.target.closest('#closeHint')) return;
-
-          ensureAbsolutePosition();
-          dragging = true;
-          sidehint.classList.add('dragging');
-
-          const rect = sidehint.getBoundingClientRect();
-          offsetX = e.clientX - rect.left;
-          offsetY = e.clientY - rect.top;
-
-          sidehint.setPointerCapture(e.pointerId);
-          e.preventDefault();
+          sidehint.style.transform = 'translateY(0)';
         });
 
         sidehint.addEventListener('pointermove', (e) => {
           if (!dragging) return;
 
-          const vw = window.innerWidth;
-          const vh = window.innerHeight;
-          const rect = sidehint.getBoundingClientRect();
+          const dx = e.clientX - startX;
+          const dy = e.clientY - startY;
 
-          let left = e.clientX - offsetX;
-          let top = e.clientY - offsetY;
+          const w = sidehint.offsetWidth;
+          const h = sidehint.offsetHeight;
+          const maxX = window.innerWidth - w - 8;
+          const maxY = window.innerHeight - h - 8;
 
-          const pad = 8;
-          left = Math.max(pad, Math.min(left, vw - rect.width - pad));
-          top  = Math.max(pad, Math.min(top,  vh - rect.height - pad));
+          const nx = clamp(baseX + dx, 8, maxX);
+          const ny = clamp(baseY + dy, 8, maxY);
 
-          sidehint.style.left = left + 'px';
-          sidehint.style.top = top + 'px';
+          sidehint.style.left = nx + 'px';
+          sidehint.style.top = ny + 'px';
         });
 
-        function endDrag(){
+        sidehint.addEventListener('pointerup', (e) => {
+          if (!dragging) return;
           dragging = false;
-          sidehint.classList.remove('dragging');
-        }
 
-        sidehint.addEventListener('pointerup', endDrag);
-        sidehint.addEventListener('pointercancel', endDrag);
+          try{
+            localStorage.setItem('vw_hint_hidden','0');
+            const x = parseFloat(sidehint.style.left) || 0;
+            const y = parseFloat(sidehint.style.top) || 0;
+            localStorage.setItem('vw_hint_pos', JSON.stringify({x,y}));
+          }catch(_){}
+        });
       }
+
     })();
   </script>
 </body>
