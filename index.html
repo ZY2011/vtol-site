@@ -620,10 +620,11 @@
 
       <!-- HOME -->
       <section id="home" class="page active" aria-label="Home">
-        <h1>Cold-chain antivenom delivery in minutes, not hours</h1>
+        <h1>An airborne lifeline: antivenom delivered within the golden 3 hours</h1>
         <p class="subtitle">
-          Lifesaving antivenom delivery by drone to remote snakebite victims — designed for fast response,
-          reliable cold-chain (2–8°C), and runway-free vertical takeoff and landing.
+          VitalWing is a fixed-wing tailsitter VTOL drone designed for emergency antivenom delivery to remote mountainous clinics.
+          It targets a ~60 km service radius in about one hour while maintaining a 2–8°C cold chain for 80+ minutes,
+          with a single-trip operating cost below ¥50.
         </p>
 
         <div class="hero-actions">
@@ -636,17 +637,18 @@
           <div class="card highlight" style="grid-column: span 7;">
             <h2 style="margin-top:0;">What we built</h2>
             <p style="margin:0;">
-              VitalWing is a fixed-wing tailsitter VTOL drone that combines vertical takeoff/landing with efficient
-              fixed-wing cruise. Using passive insulation for the payload bay and autonomous flight control,
-              it aims to deliver antivenom within the critical treatment window.
+              VitalWing combines runway-free VTOL with efficient fixed-wing cruise. It uses an optimized PP-board insulated payload bay
+              to keep antivenom between 2–8°C, and a dual-parameter transition controller (airspeed + pitch-angle feedback via PID)
+              to achieve reliable VTOL ↔ cruise transitions in turbulent terrain.
             </p>
             <div style="margin-top:12px;">
               <span class="pill">VTOL + fixed-wing cruise</span>
-              <span class="pill">2–8°C cold-chain</span>
-              <span class="pill">Autonomous navigation</span>
+              <span class="pill">2–8°C for 80+ min</span>
+              <span class="pill">&gt;95% transition success</span>
+              <span class="pill">≤ ¥50 per trip</span>
             </div>
 
-            <!-- NEW: VTOL2 photo on Home -->
+            <!-- VTOL2 photo on Home -->
             <div class="figure" style="margin-top:14px;">
               <img src="./assets/images/VTOL2.jpg" alt="VitalWing VTOL drone photo" />
               <div class="figcap">VitalWing VTOL prototype photo.</div>
@@ -657,20 +659,28 @@
             <h2 style="margin-top:0;">Quick facts</h2>
             <div class="grid" style="margin-top:10px;">
               <div class="kpi" style="grid-column: span 6;">
-                <strong>&lt; 60 min</strong>
-                <span>target delivery time</span>
+                <strong>~60 km</strong>
+                <span>service radius</span>
               </div>
               <div class="kpi" style="grid-column: span 6;">
-                <strong>50+ km</strong>
-                <span>range (target)</span>
+                <strong>~1 hour</strong>
+                <span>typical delivery time</span>
+              </div>
+              <div class="kpi" style="grid-column: span 6;">
+                <strong>70 km/h</strong>
+                <span>cruise efficiency</span>
               </div>
               <div class="kpi" style="grid-column: span 6;">
                 <strong>2–8°C</strong>
-                <span>payload temperature</span>
+                <span>cold-chain stability</span>
               </div>
               <div class="kpi" style="grid-column: span 6;">
-                <strong>VTOL</strong>
-                <span>runway-free ops</span>
+                <strong>9 m/s</strong>
+                <span>hover wind tolerance</span>
+              </div>
+              <div class="kpi" style="grid-column: span 6;">
+                <strong>&gt;95%</strong>
+                <span>transition success</span>
               </div>
             </div>
             <p class="muted" style="margin:12px 0 0;">
@@ -685,9 +695,9 @@
         <h2>The Problem</h2>
         <div class="card danger">
           <p>
-            Snakebite envenoming is a life-threatening emergency. In many rural regions, antivenom is not available locally.
-            Poor infrastructure and difficult terrain delay delivery, and survival drops sharply if antivenom is not administered
-            within the critical three-hour window.
+            Snakebite envenoming is a time-critical emergency. Globally, there are ~5.4 million snakebites each year,
+            causing 63,400+ deaths and around 400,000 permanent disabilities. In remote regions, victims often cannot
+            access antivenom within the “golden 3-hour” window due to poor infrastructure, complex terrain, and long travel times.
           </p>
 
           <hr class="split" />
@@ -702,8 +712,8 @@
               <span>deaths per year</span>
             </div>
             <div class="kpi" style="grid-column: span 4;">
-              <strong>≤ 3 hours</strong>
-              <span>critical treatment window</span>
+              <strong>400,000</strong>
+              <span>disabilities per year</span>
             </div>
           </div>
 
@@ -712,6 +722,15 @@
                  alt="Global Snakebite Mortality Distribution chart" />
             <div class="figcap">Global Snakebite Mortality Distribution (illustrative summary by region).</div>
           </div>
+
+          <hr class="split" />
+
+          <h3 style="margin:0 0 8px; font-size:16px;">Why the urgency is rising</h3>
+          <ul>
+            <li><b>Rural population aging:</b> more vulnerable patients in rural areas</li>
+            <li><b>Climate change:</b> snake habitats expanding into previously lower-risk zones</li>
+            <li><b>Healthcare workforce shortages:</b> reduced emergency response capacity in remote settings</li>
+          </ul>
 
           <p class="muted" style="margin-top:12px;">
             Target context: remote communities where road speed can be extremely low and time-to-treatment is unpredictable.
@@ -730,9 +749,11 @@
           </p>
 
           <div style="margin-top:10px;">
-            <span class="pill">VTOL + fixed-wing cruise</span>
-            <span class="pill">Cold-chain 2–8°C</span>
-            <span class="pill">Autonomous flight (ESP32 + ArduPilot)</span>
+            <span class="pill">Vertical Takeoff</span>
+            <span class="pill">Transition to Cruise</span>
+            <span class="pill">Waypoint Navigation</span>
+            <span class="pill">Transition to Hover</span>
+            <span class="pill">Vertical Landing</span>
           </div>
 
           <hr class="split" />
@@ -748,10 +769,11 @@
             <div>
               <h3 style="margin:0 0 8px; font-size:16px;">Key Design Characteristics</h3>
               <ul>
-                <li><b>Fast response:</b> targets &lt; 60-minute delivery window for remote missions</li>
-                <li><b>Long-range efficiency:</b> fixed-wing lift enables higher speed and range than multicopters</li>
+                <li><b>Fast response:</b> reaches a ~60 km radius in about one hour for remote missions</li>
+                <li><b>Long-range efficiency:</b> fixed-wing lift supports ~70 km/h cruise and extended range</li>
                 <li><b>Runway-free:</b> VTOL operations for clinics and confined landing zones</li>
-                <li><b>Cold-chain:</b> passive insulation (e.g., PP-board design) supports 2–8°C stability</li>
+                <li><b>Cold-chain:</b> PP-board insulation keeps 2–8°C stable for 80+ minutes</li>
+                <li><b>Cost:</b> single-trip operating cost below ¥50 (target/validated)</li>
               </ul>
             </div>
           </div>
@@ -763,31 +785,40 @@
         <h2>Innovation</h2>
         <div class="grid">
           <div class="card" style="grid-column: span 7;">
-            <h3 style="margin:0 0 8px; font-size:16px;">Unique Value Proposition</h3>
+            <h3 style="margin:0 0 8px; font-size:16px;">What’s new (and proprietary)</h3>
             <p style="margin:0;">
-              Compared with slow ground transport and low-range multicopter drones, a tailsitter VTOL combines runway-free landing
-              with high-efficiency fixed-wing cruise — enabling rapid, reliable, and cost-effective delivery to remote locations.
+              VitalWing’s key innovation is its high-reliability transition control. Instead of relying mainly on accelerometer signals,
+              we integrate real-time airspeed sensing with pitch-angle feedback through a custom-tuned PID controller. This dual-parameter
+              approach improves transition robustness in turbulent mountain winds and helps achieve &gt;95% transition success.
             </p>
 
             <hr class="split" />
 
-            <h3 style="margin:0 0 8px; font-size:16px;">What’s Hard (and Why It Matters)</h3>
+            <h3 style="margin:0 0 8px; font-size:16px;">Cold-chain without heavy refrigeration</h3>
+            <p style="margin:0;">
+              An optimized PP-board insulation payload bay maintains 2–8°C temperature stability for 80+ minutes, reducing weight and power draw,
+              and making emergency delivery more dependable in the field.
+            </p>
+
+            <hr class="split" />
+
+            <h3 style="margin:0 0 8px; font-size:16px;">Why it matters</h3>
             <ul>
-              <li><b>Transition stability:</b> smooth VTOL ↔ cruise switching under wind and vibration constraints</li>
-              <li><b>Cold-chain integrity:</b> maintaining 2–8°C without heavy, power-hungry refrigeration</li>
-              <li><b>Repeatable autonomy:</b> reliable waypoint navigation and precision landing</li>
+              <li><b>Transition stability:</b> reliable VTOL ↔ cruise switching under wind and vibration constraints</li>
+              <li><b>Cold-chain integrity:</b> protects antivenom effectiveness during time-critical transport</li>
+              <li><b>Emergency readiness:</b> faster delivery can reduce treatment delay by over 50% vs. traditional transport</li>
             </ul>
           </div>
 
           <div class="card" style="grid-column: span 5;">
             <h3 style="margin:0 0 8px; font-size:16px;">Sustainable Advantage</h3>
             <ul>
-              <li>Flight control tuning know-how (PID, gain scheduling, transition logic)</li>
-              <li>Iterative prototyping across aerodynamics, insulation, and cost</li>
-              <li>Accumulated testing data and operational knowledge base</li>
+              <li><b>Patent applied:</b> PID-based VTOL transition logic and cruise control</li>
+              <li>Testing data from lab + field trials across two prototype iterations</li>
+              <li>Operational playbook for emergency workflows and deployment</li>
             </ul>
             <p class="muted" style="margin:10px 0 0;">
-              Advantage compounds through flight logs, thermal tests, and real deployment feedback.
+              Advantage compounds through flight logs, thermal tests, and deployment feedback.
             </p>
           </div>
         </div>
@@ -798,30 +829,30 @@
         <h2>Validation & Transition Control Logic</h2>
         <div class="card highlight">
           <p>
-            We validate performance with mission-level metrics tied to life-critical delivery: delivery time, temperature stability,
-            autonomous transition success, navigation accuracy, and unit economics.
+            We validate performance with mission-level metrics tied to emergency delivery: delivery time, temperature stability,
+            autonomous transition success, navigation accuracy, and real-world reliability in wind.
           </p>
 
           <div class="grid" style="margin-top:10px;">
             <div class="kpi" style="grid-column: span 4;">
-              <strong>&lt; 60 min</strong>
-              <span>target delivery time</span>
+              <strong>9 m/s</strong>
+              <span>hover wind tolerance</span>
             </div>
             <div class="kpi" style="grid-column: span 4;">
-              <strong>2–8°C</strong>
-              <span>cold-chain temperature band</span>
+              <strong>&gt; 95%</strong>
+              <span>transition success</span>
             </div>
             <div class="kpi" style="grid-column: span 4;">
-              <strong>95%+</strong>
-              <span>transition success (target)</span>
+              <strong>70 km/h</strong>
+              <span>cruise efficiency</span>
             </div>
             <div class="kpi" style="grid-column: span 6;">
-              <strong>≤ ¥2000</strong>
-              <span>unit cost target</span>
+              <strong>80+ min</strong>
+              <span>2–8°C stability</span>
             </div>
             <div class="kpi" style="grid-column: span 6;">
-              <strong>≤ ¥50</strong>
-              <span>mission cost target</span>
+              <strong>98 / 100</strong>
+              <span>simulated missions reached target</span>
             </div>
           </div>
 
@@ -830,6 +861,16 @@
                  alt="VTOL transition control logic diagram" />
             <div class="figcap">Transition Control Logic (hover → transition → forward flight), including key parameters and triggers.</div>
           </div>
+
+          <hr class="split" />
+
+          <h3 style="margin:0 0 8px; font-size:16px;">Progress signals</h3>
+          <ul>
+            <li><b>Lab testing:</b> validated aerodynamic stability and transition logic in controlled settings</li>
+            <li><b>Field testing:</b> two prototype iterations achieved &gt;95% transition success and ~70 km/h cruise</li>
+            <li><b>Authorization:</b> obtained flight authorization from the civil aviation board</li>
+            <li><b>Stakeholders:</b> engagement with Guangxi Medical University and Anning Municipal Hospital</li>
+          </ul>
 
           <p class="muted" style="margin-top:12px;">
             Validation focuses on stability (wind & transition), cold-chain integrity, and repeatable autonomous operations.
@@ -859,17 +900,27 @@
           <div class="card" style="grid-column: span 6;">
             <h3 style="margin:0 0 8px; font-size:16px;">Customer Segments</h3>
             <ul>
-              <li><b>Primary customers:</b> rural hospitals/clinics and health NGOs in snakebite-prevalent regions</li>
-              <li><b>End beneficiaries:</b> remote snakebite victims who face delayed access to antivenom</li>
+              <li><b>Payer / decision maker:</b> County & municipal CDC / Health Commissions</li>
+              <li><b>Operators:</b> township health centers and clinic medical staff</li>
+              <li><b>End beneficiaries:</b> snakebite victims in remote villages (within ~60 km coverage)</li>
             </ul>
+            <p class="muted" style="margin-top:10px;">
+              Priority: speed (golden window), reliability in complex terrain, and cost-effectiveness per mission.
+            </p>
           </div>
 
           <div class="card" style="grid-column: span 6;">
-            <h3 style="margin:0 0 8px; font-size:16px;">Channels & Early Adopters</h3>
+            <h3 style="margin:0 0 8px; font-size:16px;">Market & rollout</h3>
             <p style="margin:0;">
-              Initial deployment through pilot partnerships with well-equipped regional hospitals and health NGOs in high-incident areas.
-              Demonstration pilots build trust, refine protocols, and generate real-world data for scale-up.
+              Focus regions include high-risk provinces in southern China (e.g., Yunnan, Guangxi, Guizhou, Hainan),
+              serving a large rural population and a substantial annual emergency antivenom demand.
+              The estimated annual emergency transportation service market in China exceeds <b>¥3B</b>.
             </p>
+            <hr class="split" />
+            <ul>
+              <li><b>Phase 1:</b> pilot partnerships with county health commissions and capable township health centers</li>
+              <li><b>Scale:</b> standardize training + protocols, then expand coverage toward 5,000 high-risk villages</li>
+            </ul>
           </div>
         </div>
       </section>
@@ -880,17 +931,26 @@
         <div class="card">
           <h3 style="margin:0 0 8px; font-size:16px;">Revenue Streams</h3>
           <ul>
-            <li><b>Hardware sales:</b> drone system sales (pricing depends on configuration and deployment package)</li>
-            <li><b>Per-mission service:</b> delivery fee per flight mission (pricing depends on region and SLA)</li>
+            <li><b>Drone sales:</b> around <b>¥6,000</b> per unit (deployment package dependent)</li>
+            <li><b>Per-mission service / rental:</b> around <b>¥200</b> per flight mission (region & SLA dependent)</li>
             <li><b>Maintenance & support:</b> training, spares, and operational support contracts</li>
           </ul>
 
           <hr class="split" />
 
-          <h3 style="margin:0 0 8px; font-size:16px;">Cost Targets</h3>
+          <h3 style="margin:0 0 8px; font-size:16px;">Cost Structure</h3>
           <ul>
-            <li><b>Unit cost target:</b> ≤ ¥2,000</li>
-            <li><b>Operating cost target:</b> ≤ ¥50 per mission</li>
+            <li><b>Airframe + components:</b> ¥1,500–¥2,000 per unit</li>
+            <li><b>Allocated R&D:</b> ~¥300 per unit</li>
+            <li><b>Operating cost:</b> ~¥50 per mission</li>
+          </ul>
+
+          <hr class="split" />
+
+          <h3 style="margin:0 0 8px; font-size:16px;">Funding Plan</h3>
+          <ul>
+            <li><b>Seeking:</b> ¥500,000 seed funding to finalize product, compliance, and first pilot deployments</li>
+            <li><b>Use of funds:</b> 50% product & compliance · 30% pilot deployment · 20% team operations</li>
           </ul>
 
           <p class="muted" style="margin-top:10px;">
@@ -904,14 +964,27 @@
         <h2>Impact</h2>
         <div class="card highlight">
           <p>
-            By enabling reliable antivenom delivery within the critical window, VitalWing can reduce preventable deaths and
-            strengthen rural healthcare access through scalable aerial logistics.
+            By enabling reliable antivenom delivery within the golden 3-hour window, VitalWing can reduce preventable deaths,
+            lower disability risk, and strengthen rural healthcare resilience through scalable aerial logistics.
           </p>
           <ul>
-            <li>Improves time-to-treatment in regions with poor road infrastructure</li>
-            <li>Scales via hub placement strategies and repeatable autonomous missions</li>
-            <li>Supports global goals to reduce snakebite mortality by improving access to timely treatment</li>
+            <li>Improves time-to-treatment in regions with poor road infrastructure and complex terrain</li>
+            <li>Targets a significant increase in “golden-time delivery rate” via standardized hubs and repeatable autonomous missions</li>
+            <li>Reduces rescue costs and long-term medical burden caused by permanent disability</li>
           </ul>
+
+          <hr class="split" />
+
+          <div class="grid">
+            <div class="kpi" style="grid-column: span 6;">
+              <strong>&gt; 50%</strong>
+              <span>reduction in delivery time (vs. traditional transport)</span>
+            </div>
+            <div class="kpi" style="grid-column: span 6;">
+              <strong>Scalable</strong>
+              <span>toward 5,000 high-risk villages</span>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -923,10 +996,10 @@
           <p style="margin:0;">
             Formed in early 2024, our team came together after learning about a tragic case where a child in Nigeria died
             in a clinic while waiting for antivenom delivery—highlighting a critical last-mile medical logistics gap.
-            We combined our engineering and product skills to build a tangible solution.
+            This shared motivation pushed us to apply our engineering and product skills to a tangible, life-saving solution.
           </p>
           <p class="muted" style="margin:10px 0 0;">
-            Core roles are structured to cover airframe/aerodynamics, mechanical/robotics execution, and product/market deployment.
+            Core roles cover airframe/aerodynamics, mechanical/robotics execution, and product/market deployment.
           </p>
         </div>
 
@@ -959,7 +1032,7 @@
             <h3 style="margin:0 0 8px; font-size:16px;">Bella — Marketing & Product Launch</h3>
             <p style="margin:0; color: var(--text-sub);">
               Experienced in marketing and product launch. Leads storytelling, outreach, and partnership-building with
-              health NGOs and public health stakeholders, turning prototype validation into real-world pilot deployments.
+              public health stakeholders, turning prototype validation into real-world pilot deployments.
             </p>
             <hr class="split" />
             <p class="muted" style="margin:0;">
